@@ -13,12 +13,12 @@ export type ArtifactId =
   | 'rattle'
   | 'heart_in_dill'
   | 'silent_step'
+  | 'fur_clump'
 
 export type ItemId =
   | 'chokopai'
   | 'icecream'
   | 'raf'
-  | 'fur_clump'
 
 export interface Artifact {
   id: ArtifactId
@@ -35,26 +35,34 @@ export interface ChokopaiState {
 }
 
 export interface GameStore {
-  // --- ТЕКУЩАЯ ЛОКАЦИЯ ---
   currentLocation: LocationId
   setLocation: (location: LocationId) => void
 
-  // --- ФЛАГИ ПРОЛОГА ---
-  prologueShown: boolean
   prologueCompleted: boolean
-  setPrologueShown: () => void
   completePrologue: () => void
 
-  // --- КОТ (пока только для пролога) ---
   hasCat: boolean
-  catState: 'idle' | 'eating' | 'offended'
-  setCatState: (state: 'idle' | 'eating' | 'offended') => void
+  catState: 'idle' | 'eating' | 'offended' | 'running' | 'in_bag' | 'washing'
+  setCatState: (state: GameStore['catState']) => void
 
-  // --- ИНВЕНТАРЬ (пустой, будет расширяться) ---
   items: string[]
   addItem: (item: string) => void
   hasItem: (item: string) => boolean
+  removeItem: (item: string) => void
 
-  // --- СБРОС ---
+  chokopai: {
+    max: 3 | 4
+    current: number
+  }
+  useChokopai: () => void
+  addChokopai: () => void
+  applyFurClump: () => void
+
+  effects: {
+    sleepiness: number // 0–100
+  }
+  addSleepiness: (value: number) => void
+  resetSleepiness: () => void
+
   reset: () => void
 }
