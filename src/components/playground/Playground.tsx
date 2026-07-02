@@ -187,7 +187,11 @@ function Playground() {
       setDialogText('Мя. Ребёнок уронил игрушку. Я подобрал. Держи. Потряси, если страшно. Мне помогает. Но вообще я ничего не боюсь. Кроме пылесоса.')
       setProgress('playground_tabletCaught', true)
 
-      setTimeout(() => setIsShowHextBtn(true), 5000)
+      setTimeout(() => {
+        setShowArtifact(false)
+        setDialogText('«Дальше - кухня. Там тебя ждёт важный выбор. Окрошка или кровь. Или… кое-что ещё. Я бы сказал что, но это испортит сюрприз. А я люблю сюрпризы. Особенно если они шуршат.')
+        setIsShowHextBtn(true)
+      }, 6000)
     }, 800)
   }
 
