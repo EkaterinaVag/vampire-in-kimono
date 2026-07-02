@@ -1,0 +1,141 @@
+.hallway {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.cat-sprite {
+  position: absolute;
+  bottom: 250px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.cat-sprite:hover {
+  transform: translateX(-50%) scale(1.05);
+}
+
+.litter-trails {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  width: 100%;
+}
+
+.litter-trail {
+  display: block;
+  width: 18px;
+  height: 4px;
+  border-radius: 4px;
+  background: #6b8f5e;
+  box-shadow: 0 0 4px rgba(107, 143, 94, 0.3);
+  transform: rotate(var(--rotation, 0deg));
+  opacity: 0.9;
+}
+
+.trail-1 {
+  --rotation: -15deg;
+  width: 20px;
+  height: 4px;
+}
+
+.trail-2 {
+  --rotation: 5deg;
+  width: 14px;
+  height: 4px;
+}
+
+.trail-3 {
+  --rotation: 20deg;
+  width: 16px;
+  height: 4px;
+}
+
+.cat-sprite.offended .litter-trails {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.cat-sprite.saved .litter-trails {
+  opacity: 0.6;
+}
+
+
+.cat-sprite.offended {
+  filter: grayscale(0.5) brightness(0.8);
+}
+
+.cat-image {
+  width: 160px;
+  height: auto;
+  image-rendering: pixelated;
+  display: block;
+  animation: catChewing 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes catChewing {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    transform: rotate(3deg) scale(1.04);
+  }
+  50% {
+    transform: rotate(0deg) scale(0.98);
+  }
+  75% {
+    transform: rotate(-3deg) scale(1.03);
+  }
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.cat-sprite.offended .cat-image,
+.cat-sprite.saved .cat-image {
+  animation: none;
+}
+
+.timer {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  align-items: end;
+  gap: 40px;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  border-radius: 40px;
+  border: 1px solid rgba(255, 200, 180, 0.2);
+  padding: 15px 40px;
+}
+
+.timer-icon {
+  width: auto;
+  height: 100px;
+  animation: timerSway 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes timerSway {
+  0% {
+    transform: rotate(-10deg);
+  }
+  100% {
+    transform: rotate(10deg);
+  }
+}
+
+.timer-text {
+  font-family: 'Courier New', monospace;
+  font-size: 5.4rem;
+  font-weight: bold;
+  color: #ffd4b0;
+  text-shadow: 0 0 20px rgba(255, 200, 150, 0.3);
+  min-width: 30px;
+  text-align: center;
+}
