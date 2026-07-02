@@ -1,5 +1,6 @@
 import { useGameStore } from './store/gameStore'
-import { Prologue } from './components/Prologue/Prologue'
+import Prologue from './components/prologue/Prologue'
+import Hallway from './components/hallway/Hallway'
 
 function App() {
   const currentLocation = useGameStore((state) => state.currentLocation)
@@ -9,6 +10,8 @@ function App() {
   return (
     <>
       {currentLocation === 'prologue' && <Prologue />}
+      {currentLocation === 'hallway' && <Hallway />}
+
     </>
   )
 }

@@ -8,9 +8,25 @@ const initialState = {
   prologueCompleted: false,
   hasCat: false,
   catState: 'idle' as const,
+  progress: {
+    hallway_catSaved: false,
+    playground_tabletCaught: false,
+    playground_childrenDefeated: false,
+    kitchen_choice: null,
+    kitchen_icecreamTaken: false,
+    kitchen_rafTaken: false,
+    bridge_passed: false,
+    bridge_attempts: 0,
+    livingroom_bagCatSaved: false,
+    livingroom_attempts: 0,
+    moon_icecreamGiven: false,
+    moon_sequenceCompleted: false,
+    moon_wrongAttempts: 0,
+  },
   items: [] as string[],
   chokopai: { max: 3 as 3 | 4, current: 3 },
   effects: { sleepiness: 0 },
+  artifacts: [] as string[],
 }
 
 export const useGameStore = create<GameStore>()(
@@ -34,18 +50,22 @@ export const useGameStore = create<GameStore>()(
         set({ catState: state })
       },
 
+      setProgress: (key, value) => {
+        set((state) => ({
+          progress: { ...state.progress, [key]: value },
+        }))
+      },
+
       addItem: (item) => {
         set((state) => ({
           items: state.items.includes(item) ? state.items : [...state.items, item],
         }))
       },
-
       removeItem: (item) => {
         set((state) => ({
           items: state.items.filter((i) => i !== item),
         }))
       },
-
       hasItem: (item) => {
         return get().items.includes(item)
       },
@@ -60,7 +80,6 @@ export const useGameStore = create<GameStore>()(
           return state
         })
       },
-
       addChokopai: () => {
         set((state) => {
           if (state.chokopai.current < state.chokopai.max) {
@@ -69,7 +88,6 @@ export const useGameStore = create<GameStore>()(
           return state
         })
       },
-
       applyFurClump: () => {
         set((state) => {
           if (state.chokopai.max === 3) {
@@ -86,13 +104,19 @@ export const useGameStore = create<GameStore>()(
           return state
         })
       },
-
       resetSleepiness: () => {
         set((state) => {
           state.effects.sleepiness = 0
           return state
         })
       },
+
+      obtainArtifact: (id) => {
+        set((state) => ({
+          artifacts: state.artifacts.includes(id) ? state.artifacts : [...state.artifacts, id],
+        }))
+      },
+      hasArtifact: (id) => get().artifacts.includes(id),
 
       reset: () => {
         set(initialState)
@@ -106,9 +130,11 @@ export const useGameStore = create<GameStore>()(
         prologueCompleted: state.prologueCompleted,
         hasCat: state.hasCat,
         catState: state.catState,
+        progress: state.progress,
         items: state.items,
         chokopai: state.chokopai,
         effects: { sleepiness: state.effects.sleepiness },
+        artifacts: state.artifacts,
       }),
     }
   )

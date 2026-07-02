@@ -45,24 +45,49 @@ export interface GameStore {
   catState: 'idle' | 'eating' | 'offended' | 'running' | 'in_bag' | 'washing'
   setCatState: (state: GameStore['catState']) => void
 
+  progress: {
+    hallway_catSaved: boolean
+
+    playground_tabletCaught: boolean
+    playground_childrenDefeated: boolean
+
+    kitchen_choice: 'okroshka' | 'blood' | null
+    kitchen_icecreamTaken: boolean
+    kitchen_rafTaken: boolean
+
+    bridge_passed: boolean
+    bridge_attempts: number
+
+    livingroom_bagCatSaved: boolean
+    livingroom_attempts: number
+
+    moon_icecreamGiven: boolean
+    moon_sequenceCompleted: boolean
+    moon_wrongAttempts: number
+  }
+
+  setProgress: <K extends keyof GameStore['progress']>(
+    key: K,
+    value: GameStore['progress'][K]
+  ) => void
+
   items: string[]
   addItem: (item: string) => void
-  hasItem: (item: string) => boolean
   removeItem: (item: string) => void
+  hasItem: (item: string) => boolean
 
-  chokopai: {
-    max: 3 | 4
-    current: number
-  }
+  chokopai: { max: 3 | 4; current: number }
   useChokopai: () => void
   addChokopai: () => void
   applyFurClump: () => void
 
-  effects: {
-    sleepiness: number // 0–100
-  }
+  effects: { sleepiness: number }
   addSleepiness: (value: number) => void
   resetSleepiness: () => void
+
+  artifacts: string[]
+  obtainArtifact: (id: string) => void
+  hasArtifact: (id: string) => boolean
 
   reset: () => void
 }

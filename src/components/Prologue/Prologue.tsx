@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useGameStore } from '@store/gameStore'
 import './Prologue.css'
 
-export function Prologue() {
+function Prologue() {
   const {
     prologueCompleted,
     completePrologue,
@@ -51,7 +51,7 @@ export function Prologue() {
   return (
     <div className="prologue">
       <img
-        className="prologue-bg"
+        className="background"
         src="src/assets/backgrounds/prologue/prologue.png"
         alt="Prologue background"
       />
@@ -79,3 +79,5 @@ export function Prologue() {
     </div>
   )
 }
+
+export default Prologue
