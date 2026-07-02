@@ -460,7 +460,7 @@ function Playground() {
                 className="round-end-sub"
                 onClick={resetRound}
               >
-                [ ПЕРЕЗАПУСТИТЬ РАУН ]
+                [ ПЕРЕЗАПУСТИТЬ РАУНД ]
               </button>
             </div>
           </div>
@@ -476,7 +476,7 @@ function Playground() {
             }}
           >
             <img
-              src="src/assets/ui/baby-1.png"
+              src="src/assets/sprites/children/baby-1.png"
               alt="Ребёнок"
             />
           </div>
