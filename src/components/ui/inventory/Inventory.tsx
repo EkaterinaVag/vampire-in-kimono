@@ -12,7 +12,7 @@ const ARTIFACT_ICONS: Record<string, string> = {
 
 const ARTIFACT_NAMES: Record<string, string> = {
   wisdom_purr: 'Мудрое мурчание',
-  rattle: 'Детская погремушка',
+  rattle: 'Погремушка забытого детства',
   heart_in_dill: 'Сердце в укропе',
   silent_step: 'Тихий шаг',
   fur_clump: 'Клок шерсти',

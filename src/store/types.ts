@@ -41,15 +41,9 @@ export interface GameStore {
   prologueCompleted: boolean
   completePrologue: () => void
 
-  hasCat: boolean
-  catState: 'idle' | 'eating' | 'offended' | 'running' | 'in_bag' | 'washing'
-  setCatState: (state: GameStore['catState']) => void
-
   progress: {
     hallway_catSaved: boolean
-
     playground_tabletCaught: boolean
-    playground_childrenDefeated: boolean
 
     kitchen_choice: 'okroshka' | 'blood' | null
     kitchen_icecreamTaken: boolean

@@ -6,12 +6,9 @@ import type { LocationId, GameStore } from './types'
 const initialState = {
   currentLocation: 'prologue' as LocationId,
   prologueCompleted: false,
-  hasCat: false,
-  catState: 'idle' as const,
   progress: {
     hallway_catSaved: false,
     playground_tabletCaught: false,
-    playground_childrenDefeated: false,
     kitchen_choice: null,
     kitchen_icecreamTaken: false,
     kitchen_rafTaken: false,
@@ -42,12 +39,7 @@ export const useGameStore = create<GameStore>()(
         set({
           prologueCompleted: true,
           currentLocation: 'hallway',
-          hasCat: true,
         })
-      },
-
-      setCatState: (state) => {
-        set({ catState: state })
       },
 
       setProgress: (key, value) => {
@@ -128,8 +120,6 @@ export const useGameStore = create<GameStore>()(
       partialize: (state) => ({
         currentLocation: state.currentLocation,
         prologueCompleted: state.prologueCompleted,
-        hasCat: state.hasCat,
-        catState: state.catState,
         progress: state.progress,
         items: state.items,
         chokopai: state.chokopai,
