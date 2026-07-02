@@ -1,0 +1,44 @@
+.lives {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 10;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.life-icon {
+  width: auto;
+  height: 100px;
+  image-rendering: pixelated;
+  transition: all 0.3s ease;
+}
+
+.life-icon.empty {
+  filter: grayscale(1) brightness(0.5);
+  opacity: 0.4;
+  transform: scale(0.85);
+}
+
+.life-icon.just-lost {
+  animation: lifeLost 0.5s ease forwards;
+}
+
+@keyframes lifeLost {
+  0% {
+    transform: scale(1);
+    filter: grayscale(0) brightness(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3) rotate(-10deg);
+    filter: grayscale(0.5) brightness(0.7);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(0.85);
+    filter: grayscale(1) brightness(0.5);
+    opacity: 0.4;
+  }
+}
