@@ -18,9 +18,66 @@ const ARTIFACT_NAMES: Record<string, string> = {
   fur_clump: 'Клок шерсти',
 }
 
+const ITEMS_ICONS: Record<string, string> = {
+  icecream: 'src/assets/items/icecream.png',
+  raf: 'src/assets/items/coffee.png',
+}
+
+const ITEMS_NAMES: Record<string, string> = {
+  icecream: 'Мороженое',
+  raf: 'Раф Марципан',
+}
+
+
 export function Inventory() {
   const artifacts = useGameStore((state) => state.artifacts)
+  const items = useGameStore(state => state.items)
+  const location = useGameStore(state => state.currentLocation)
+
+  const resetSleepiness = useGameStore(state => state.resetSleepiness)
+  const removeItem = useGameStore(state => state.removeItem)
+
   const [isOpen, setIsOpen] = useState(false)
+  const [useMessage, setUseMessage] = useState<string | null>(null)
+
+  const handleUseItem = (itemId: string) => {
+    if (itemId === 'raf') {
+      resetSleepiness()
+      removeItem('raf')
+
+      const message = 'Ты выпил раф марципан. Сонливость полностью прошла!'
+      setUseMessage(message)
+
+      setTimeout(() => {
+        setUseMessage(null)
+      }, 3000)
+
+      return
+    }
+
+    if (itemId === 'icecream') {
+      let message: string
+
+      if (location !== 'moon_field') {
+        message = 'Ты уверен, что хочешь съесть его сейчас? Оно тебе ещё пригодится.'
+        setUseMessage(message)
+
+        setTimeout(() => {
+          setUseMessage(null)
+        }, 3000)
+      } else {
+        message = 'Ты отдал мороженое кошке. Она благодарно мурлычет!'
+        removeItem('icecream')
+        setUseMessage(message)
+
+        setTimeout(() => {
+          setUseMessage(null)
+        }, 3000)
+      }
+
+      return 
+    }
+  }
 
   return (
     <div className="inventory-wrapper">
@@ -33,6 +90,10 @@ export function Inventory() {
 
       {isOpen && (
         <div className="inventory-panel">
+          {useMessage && (
+            <div className="use-message">{useMessage}</div>
+          )}
+
           <h3>Артефакты</h3>
           {artifacts.length === 0 ? (
             <p className="empty-message">Пока ничего нет</p>
@@ -46,6 +107,30 @@ export function Inventory() {
               ))}
             </div>
           )}
+
+          <h3>Предметы</h3>
+          {items.length === 0 ? (
+            <p className="empty-message">Пока ничего нет</p>
+          ) : (
+            <div className="artifact-grid">
+              {items.map((id) => {
+                const isUsable = id === 'raf' || id === 'icecream'
+                return (
+                  <div
+                    key={id}
+                    className={`artifact-item ${isUsable ? 'usable' : ''}`}
+                    onClick={() => isUsable && handleUseItem(id)}
+                    style={{ cursor: isUsable ? 'pointer' : 'default' }}
+                  >
+                    <img src={ITEMS_ICONS[id]} alt={ITEMS_NAMES[id]} />
+                    <span>{ITEMS_NAMES[id] || id}</span>
+                    {isUsable && <span className="use-hint">Применить</span>}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
           <button className="close-inventory" onClick={() => setIsOpen(false)}>
             Закрыть
           </button>
