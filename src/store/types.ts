@@ -50,14 +50,10 @@ export interface GameStore {
     kitchen_rafTaken: boolean
 
     bridge_passed: boolean
-    bridge_attempts: number
 
     livingroom_bagCatSaved: boolean
-    livingroom_attempts: number
-
     moon_icecreamGiven: boolean
     moon_sequenceCompleted: boolean
-    moon_wrongAttempts: number
   }
 
   setProgress: <K extends keyof GameStore['progress']>(

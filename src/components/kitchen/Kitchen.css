@@ -1,0 +1,190 @@
+.kitchen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.kitchen-item {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.kitchen-item img {
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+  transition: all 0.3s ease;
+}
+
+.kitchen-item:hover img {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 30px rgba(255, 200, 150, 0.2));
+}
+
+.item-label {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  pointer-events: none;
+}
+
+.item-check {
+  font-size: 1.2rem;
+  margin-top: 2px;
+  animation: checkPop 0.4s ease forwards;
+}
+
+@keyframes checkPop {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* --- ПОЗИЦИИ ПРЕДМЕТОВ --- */
+.blood {
+  bottom: 250px;
+  left: 45%;
+  transform: translateX(-50%);
+}
+
+.blood img {
+  height: 150px;
+  width: auto;
+}
+
+.okroshka {
+  bottom: 250px;
+  right: 45%;
+  transform: translateX(50%);
+}
+
+.okroshka img {
+  width: 120px;
+  height: auto;
+}
+
+.raf {
+  bottom: 510px;
+  left: 0;
+}
+
+.raf img {
+  width: 60px;
+}
+
+/* --- ВЫБРАННЫЙ ПРЕДМЕТ --- */
+.kitchen-item.selected img {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.3));
+}
+
+.kitchen-item.selected .item-label {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
+/* --- ВЗЯТЫЙ ПРЕДМЕТ --- */
+.kitchen-item.taken {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.kitchen-item.taken img {
+  filter: grayscale(0.5);
+}
+
+.kitchen-item.taken .item-label {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* --- ПОДСКАЗКА НА СТОЛЕ (для красоты) --- */
+.table-hint {
+  position: absolute;
+  bottom: 200px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+}
+
+.kitchen-item.fridge {
+  left: 50%;
+  top: 38%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 330px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+/* Мороженое */
+.kitchen-item.icecream {
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  height: 200px;
+  width: auto;
+  cursor: default;
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+  opacity: 1;
+}
+
+.kitchen-item.icecream img {
+  height: 100%;
+  width: auto;
+}
+
+/* Анимация исчезновения */
+.kitchen-item.icecream.fading {
+  opacity: 0;
+  transform: scale(0.5) rotate(20deg);
+  pointer-events: none;
+}
+
+.cat {
+  position: absolute;
+  top: 50%;
+  right: 30%;
+  transition: transform 0.3s ease;
+}
+
+.cat img {
+  height: 300px;
+  width: auto;
+  transform: scaleX(-1);
+  transition: transform 0.3s ease;
+  display: block;
+}
+
+.cat.active:hover img {
+  transform: scaleX(-1) scale(1.1);
+}
+
+.cat.active {
+  cursor: pointer;
+}
+
+.cat.inactive {
+  filter: grayscale(0.3);
+}
+
