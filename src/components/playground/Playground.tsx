@@ -5,7 +5,7 @@ import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotific
 import './Playground.css'
 
 function Playground() {
-  const { setLocation, obtainArtifact, addItem, setProgress, chokopai, useChokopai } = useGameStore()
+  const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai } = useGameStore()
 
   const [currentScene, setCurrentScene] = useState(0)
   const [playerX, setPlayerX] = useState(20)
@@ -20,7 +20,7 @@ function Playground() {
   const [isRoundActive, setIsRoundActive] = useState(true)
   const [showRoundEnd, setShowRoundEnd] = useState(false)
 
-  const [gameTime, setGameTime] = useState(180)
+  const [gameTime, setGameTime] = useState(60)
   const [isTimeStopped, setIsTimeStopped] = useState(false)
 
   const [tablet, setTablet] = useState<{ x: number; y: number; active: boolean } | null>(null)
@@ -182,7 +182,6 @@ function Playground() {
     setTimeout(() => {
       setShowArtifact(true)
       obtainArtifact('rattle')
-      addItem('chokopai')
       setDialogText('Мя. Ребёнок уронил игрушку. Я подобрал. Держи. Потряси, если страшно. Мне помогает. Но вообще я ничего не боюсь. Кроме пылесоса.')
       setProgress('playground_tabletCaught', true)
 

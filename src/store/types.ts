@@ -16,7 +16,6 @@ export type ArtifactId =
   | 'fur_clump'
 
 export type ItemId =
-  | 'chokopai'
   | 'icecream'
   | 'raf'
 

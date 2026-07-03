@@ -63,8 +63,6 @@ export const useGameStore = create<GameStore>()(
         set((state) => {
           if (state.chokopai.current > 0) {
             state.chokopai.current--
-            // съеденный чокопай снижает сонливость
-            state.effects.sleepiness = Math.max(0, state.effects.sleepiness - 30)
           }
           return state
         })
