@@ -5,7 +5,7 @@ import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 
 function Hallway() {
-  const { setProgress, setLocation, obtainArtifact, addItem } =
+  const { setProgress, setLocation, obtainArtifact, addItem, applyFurClump } =
     useGameStore()
 
   const [timeLeft, setTimeLeft] = useState(5)
@@ -48,10 +48,11 @@ function Hallway() {
     setProgress('hallway_catSaved', true)
     obtainArtifact('wisdom_purr')
     addItem('chokopai')
+    applyFurClump()
 
     setShowArtifact(true)
     setDialogText(
-      '«Ты спас меня от меня самого. Держи - это мудрость. Она хрустит. Не ешь её. Положи в карман кимоно.»'
+      '«Ты спас меня от меня самого. Держи - это мудрость. Она хрустит. Не ешь её. Положи в карман кимоно. И еще один чокопай. Пригодится»'
     )
   }
 
