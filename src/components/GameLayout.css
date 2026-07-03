@@ -41,15 +41,9 @@
   pointer-events: none;
 }
 
-@media (max-width: 768px) {
-  .bg-text {
-    width: 90%;
-    bottom: 40px;
-  }
-
+@media (max-width: 1400px) {
   .dialog-text {
-    font-size: 0.95rem;
-    padding: 12px 16px;
+    font-size: 0.8rem;
   }
 }
 
