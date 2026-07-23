@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useGameStore } from '@store/gameStore'
 import './Inventory.css'
+import { ResetButton } from '@/components/Reset'
 
 const ARTIFACT_ICONS: Record<string, string> = {
   wisdom_purr: 'src/assets/items/artifacts/purr.png',
@@ -34,15 +35,15 @@ export function Inventory() {
   const items = useGameStore(state => state.items)
   const location = useGameStore(state => state.currentLocation)
 
-  const resetSleepiness = useGameStore(state => state.resetSleepiness)
   const removeItem = useGameStore(state => state.removeItem)
+  const consumeRaf = useGameStore(state => state.consumeRaf)
 
   const [isOpen, setIsOpen] = useState(false)
   const [useMessage, setUseMessage] = useState<string | null>(null)
 
   const handleUseItem = (itemId: string) => {
     if (itemId === 'raf') {
-      resetSleepiness()
+      consumeRaf()
       removeItem('raf')
 
       const message = 'Ты выпил раф марципан. Сонливость полностью прошла!'
@@ -75,7 +76,7 @@ export function Inventory() {
         }, 3000)
       }
 
-      return 
+      return
     }
   }
 
@@ -134,6 +135,8 @@ export function Inventory() {
           <button className="close-inventory" onClick={() => setIsOpen(false)}>
             Закрыть
           </button>
+
+          <ResetButton/>
         </div>
       )}
     </div>

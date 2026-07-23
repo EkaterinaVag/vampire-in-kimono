@@ -12,6 +12,7 @@ const initialState = {
     kitchen_choice: null,
     kitchen_icecreamTaken: false,
     kitchen_rafTaken: false,
+    kitchen_rafUsed: false,
     bridge_passed: false,
     livingroom_bagCatSaved: false,
     moon_icecreamGiven: false,
@@ -93,6 +94,13 @@ export const useGameStore = create<GameStore>()(
       },
       resetSleepiness: () => {
         set((state) => {
+          state.effects.sleepiness = 0
+          return state
+        })
+      },
+      consumeRaf: () => {
+        set((state) => {
+          state.progress.kitchen_rafUsed = true
           state.effects.sleepiness = 0
           return state
         })

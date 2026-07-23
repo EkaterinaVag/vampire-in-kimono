@@ -16,16 +16,15 @@ function Kitchen() {
     effects
   } = useGameStore()
 
-  const isIceCreamGlobal = useGameStore(state => state.progress.kitchen_icecreamTaken)
-  const isRafGlobal = useGameStore(state => state.progress.kitchen_rafTaken)
+  const icecreamTaken = useGameStore(state => state.progress.kitchen_icecreamTaken)
+  const rafTaken = useGameStore(state => state.progress.kitchen_rafTaken)
+  const selectedChoice = useGameStore(state => state.progress.kitchen_choice)
 
   const [dialogText, setDialogText] = useState('')
   const [isShowNextBtn, setIsShowNextBtn] = useState(false)
   const [showArtifact, setShowArtifact] = useState(false)
 
-  const [selectedChoice, setSelectedChoice] = useState<'okroshka' | 'blood' | null>(null)
-  const [icecreamTaken, setIcecreamTaken] = useState(isIceCreamGlobal)
-  const [rafTaken, setRafTaken] = useState(isRafGlobal)
+  // const [selectedChoice, setSelectedChoice] = useState<'okroshka' | 'blood' | null>(null)
   const [isFridgeOpen, setIsFridgeOpen] = useState(false)
   const [isIcecreamFading, setIsIcecreamFading] = useState(false)
 
@@ -33,7 +32,6 @@ function Kitchen() {
   const handleChoice = (choice: 'okroshka' | 'blood') => {
     if (selectedChoice) return
 
-    setSelectedChoice(choice)
     setProgress('kitchen_choice', choice)
 
     if (choice === 'okroshka') {
@@ -79,7 +77,6 @@ function Kitchen() {
     setIsIcecreamFading(true)
 
     setTimeout(() => {
-      setIcecreamTaken(true)
       addItem('icecream')
       setProgress('kitchen_icecreamTaken', true)
       setDialogText(
@@ -92,7 +89,6 @@ function Kitchen() {
   const handleRafClick = () => {
     if (rafTaken) return
 
-    setRafTaken(true)
     addItem('raf')
     setProgress('kitchen_rafTaken', true)
     setDialogText('«Фу. Сладкое. Но тебе поможет. Пей. Кофе - это сила смертных.»')
@@ -117,13 +113,6 @@ function Kitchen() {
     setTimeout(() => setIsShowNextBtn(true), 2000)
   }
 
-  const getSleepinessLevelClass = () => {
-    const value = effects.sleepiness
-    if (value >= 80) return 'level-critical'
-    if (value >= 50) return 'level-high'
-    if (value >= 25) return 'level-medium'
-    return 'level-low'
-  }
 
   return (
     <GameLayout
@@ -131,7 +120,7 @@ function Kitchen() {
       showNextBtn={isShowNextBtn}
       onNext={handleContinue}
     >
-      <SleepinessVignette className={getSleepinessLevelClass()}>
+      <SleepinessVignette>
         <div className="kitchen">
           <img
             className="background"
@@ -156,7 +145,7 @@ function Kitchen() {
                 onClick={handleTakeIcecream}
                 style={{ cursor: isIcecreamFading ? 'default' : 'pointer' }}
               >
-                {isIcecreamFading && (
+                {!icecreamTaken && (
                   <><img src="src/assets/items/icecream.png" alt="Мороженое" />
                     <span className="item-label">Взять мороженое</span>
                   </>

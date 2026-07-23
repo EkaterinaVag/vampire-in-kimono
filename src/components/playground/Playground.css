@@ -25,10 +25,12 @@
 }
 
 @keyframes walk {
+
   0%,
   100% {
     transform: translateX(0);
   }
+
   50% {
     transform: translateX(4px);
   }
@@ -145,6 +147,7 @@
     transform: rotate(0deg) scale(0.8);
     opacity: 0.5;
   }
+
   100% {
     transform: rotate(10deg) scale(1);
     opacity: 1;
@@ -166,6 +169,7 @@
   0% {
     transform: translateX(-50%) translateY(0) scale(1);
   }
+
   100% {
     transform: translateX(-50%) translateY(-6px) scale(1.05);
   }
@@ -212,6 +216,7 @@
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
@@ -236,6 +241,7 @@
     transform: scale(0.7) rotate(-3deg);
     opacity: 0;
   }
+
   100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
@@ -251,6 +257,7 @@
   0% {
     transform: translateY(0) scale(1);
   }
+
   100% {
     transform: translateY(-8px) scale(1.05);
   }
@@ -289,4 +296,13 @@
 
 .round-end-message .round-end-sub:active {
   transform: scale(0.96);
+}
+
+.cat-lie {
+  position: absolute;
+  right: 0;
+  bottom: 180px;
+  height: 200px;
+  width: auto;
+  z-index: 1;
 }

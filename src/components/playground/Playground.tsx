@@ -502,6 +502,14 @@ function Playground() {
           </div>
         )}
 
+        {currentScene === 1 && (
+          <img
+            className='cat-lie'
+            src='src/assets/sprites/cat/cat-5.png'
+            alt="кошка"
+          />
+        )}
+
         <div className="controls-hint">
           ← → или A D - движение
         </div>

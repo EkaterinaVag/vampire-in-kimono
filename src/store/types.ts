@@ -47,6 +47,7 @@ export interface GameStore {
     kitchen_choice: 'okroshka' | 'blood' | null
     kitchen_icecreamTaken: boolean
     kitchen_rafTaken: boolean
+    kitchen_rafUsed: boolean,
 
     bridge_passed: boolean
 
@@ -69,6 +70,8 @@ export interface GameStore {
   useChokopai: () => void
   addChokopai: () => void
   applyFurClump: () => void
+
+  consumeRaf: () => void
 
   effects: { sleepiness: number }
   addSleepiness: (value: number) => void

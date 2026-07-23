@@ -1,0 +1,279 @@
+.bridge {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.bridge {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Игрок */
+.player {
+  position: absolute;
+  bottom: 30%;
+  z-index: 2;
+  transform: translateX(-50%);
+  transition: left 0.05s ease, bottom 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
+}
+
+.player-sprite {
+  width: auto;
+  height: 193px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
+}
+
+.player.moving .player-sprite:not(.falling) {
+  animation: walk 0.3s steps(2) infinite;
+}
+
+@keyframes walk {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  50% {
+    transform: translateX(4px);
+  }
+}
+
+/* Управление */
+.controls-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Трещины поверх фона */
+.crack-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.crack-line {
+  position: absolute;
+  bottom: 33%;
+  width: 3px;
+  height: 0;
+  background: rgba(7, 7, 7, 0.7);
+  animation: crackAppear 0.5s ease-out forwards;
+  transform-origin: bottom;
+  border-radius: 2px;
+}
+
+.crack-line:nth-child(1) {
+  height: 40px;
+  transform: skewX(-10deg);
+}
+
+.crack-line:nth-child(2) {
+  height: 60px;
+  transform: skewX(5deg);
+}
+
+.crack-line:nth-child(3) {
+  height: 30px;
+  transform: skewX(-15deg);
+}
+
+@keyframes crackAppear {
+  0% {
+    height: 0;
+    opacity: 0;
+  }
+
+  100% {
+    height: var(--crack-height, 50px);
+    opacity: 1;
+  }
+}
+
+/* Эффекты падения */
+.falling-flash {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at center, rgba(255, 200, 100, 0.3), transparent 70%);
+  animation: flashPulse 0.8s ease-out forwards;
+  z-index: 1;
+  pointer-events: none;
+}
+
+@keyframes flashPulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+/* Облако пыли */
+.dust-cloud {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 100px;
+  background: radial-gradient(ellipse at center, rgba(200, 180, 150, 0.4), transparent 70%);
+  animation: dustExpand 1.2s ease-out forwards;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+@keyframes dustExpand {
+  0% {
+    transform: translateX(-50%) scale(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* Обломки */
+.debris {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.debris-piece {
+  position: absolute;
+  background: linear-gradient(135deg, #8B7355, #5C4033);
+  border-radius: 2px;
+  animation: debrisFly 1.5s ease-out forwards;
+  opacity: 0;
+  border: 1px solid #3A2A1A;
+}
+
+@keyframes debrisFly {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) rotate(720deg) scale(0);
+  }
+}
+
+/* Скрин шейк */
+.screen-shake {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  pointer-events: none;
+  animation: shake 0.15s ease-in-out infinite;
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  25% {
+    transform: translate(-10px, 10px);
+  }
+
+  50% {
+    transform: translate(10px, -10px);
+  }
+
+  75% {
+    transform: translate(-10px, -10px);
+  }
+}
+
+.player.falling {
+  transition: none !important;
+  z-index: 5;
+}
+
+.player.falling .player-sprite {
+  animation: fallSpin 1s ease-in forwards;
+  filter: drop-shadow(0 10px 30px rgba(255, 100, 0, 0.5));
+}
+
+@keyframes fallSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  100% {
+    transform: rotate(720deg) scale(0.3);
+  }
+}
+
+/* Следы падения */
+.fall-trails {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.fall-trail {
+  position: absolute;
+  top: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), transparent);
+  border-radius: 50%;
+  animation: trailDrop 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes trailDrop {
+  0% {
+    opacity: 0.8;
+    transform: translateY(0) scaleX(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(80px) scaleX(0.2);
+  }
+}
+
+.cat-cat {
+  position: absolute;
+  right: 10px;
+  bottom: 280px;
+  height: 200px;
+  width: auto;
+  z-index: 1;
+}
