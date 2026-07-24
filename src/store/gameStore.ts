@@ -3,7 +3,13 @@ import { persist } from 'zustand/middleware'
 
 import type { LocationId, GameStore } from './types'
 
-const initialState = {
+const getInitialState = (): Omit<GameStore,
+  'setLocation' | 'completePrologue' | 'setProgress' |
+  'addItem' | 'removeItem' | 'hasItem' | 'useChokopai' |
+  'addChokopai' | 'applyFurClump' | 'consumeRaf' |
+  'addSleepiness' | 'resetSleepiness' | 'obtainArtifact' |
+  'hasArtifact' | 'reset'
+> => ({
   currentLocation: 'prologue' as LocationId,
   prologueCompleted: false,
   progress: {
@@ -18,16 +24,16 @@ const initialState = {
     moon_icecreamGiven: false,
     moon_sequenceCompleted: false,
   },
-  items: [] as string[],
+  items: [],
   chokopai: { max: 3 as 3 | 4, current: 3 },
   effects: { sleepiness: 0 },
-  artifacts: [] as string[],
-}
+  artifacts: [],
+})
 
 export const useGameStore = create<GameStore>()(
   persist(
     (set, get) => ({
-      ...initialState,
+      ...getInitialState(),
 
       setLocation: (location) => {
         set({ currentLocation: location })
@@ -114,7 +120,7 @@ export const useGameStore = create<GameStore>()(
       hasArtifact: (id) => get().artifacts.includes(id),
 
       reset: () => {
-        set(initialState)
+        set(getInitialState())
         localStorage.removeItem('game-storage')
       },
     }),

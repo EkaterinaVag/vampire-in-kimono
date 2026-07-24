@@ -92,7 +92,7 @@ function Hallway() {
         >
           <img
             className='cat-image'
-            src={`${isCatSaved ? "src/assets/sprites/cat/cat-8.png" : "src/assets/sprites/cat/cat.png"}`}
+            src={`${isCatSaved ? "src/assets/sprites/cat/cat-3.png" : "src/assets/sprites/cat/cat.png"}`}
             alt="Cat eating litter"
           />
           <div className="litter-trails">
