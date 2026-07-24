@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { flushSync } from 'react-dom'
 import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
@@ -41,6 +40,8 @@ function Bridge() {
 
   const fallAnimationRef = useRef<number | null>(null)
   const runningTimeRef = useRef<number>(0)
+
+  const isTransitioningRef = useRef(false)
 
   const images = [catSprite, bg, bgTwo, playerStand, playerLeft, playerRight, paw]
 
@@ -161,6 +162,7 @@ function Bridge() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isPassed || isShowNextBtn || isFalling) return
+      if (isTransitioningRef.current) return
 
       if (e.key === 'Shift') {
         setIsShiftHeld(true)
@@ -168,44 +170,52 @@ function Bridge() {
       }
 
       if (e.key === 'ArrowRight' || e.key === 'd') {
+        e.preventDefault()
         setIsMoving(true)
         setIsMovingLeft(false)
 
-        flushSync(() => {
-          setPlayerX((prev) => {
-            const speed = isShiftHeld ? 0.5 : 1.5
-            const newX = Math.min(prev + speed, 95)
+        setPlayerX((prev) => {
+          const speed = isShiftHeld ? 0.5 : 1.5
+          const newX = Math.min(prev + speed, 95)
 
-            if (newX >= 85 && currentScene === 0) {
-              setCurrentScene(1)
-              flushSync(() => {
-                setPlayerX(10)
-              })
-              return newX
-            }
-            return newX
-          })
+          if (newX >= 90 && currentScene === 0 && !isTransitioningRef.current) {
+            isTransitioningRef.current = true
+
+            setCurrentScene(1)
+            setPlayerX(10)
+
+            setTimeout(() => {
+              isTransitioningRef.current = false
+            }, 100)
+
+            return 10
+          }
+          return newX
         })
       }
 
       if (e.key === 'ArrowLeft' || e.key === 'a') {
+        e.preventDefault()
         setIsMoving(true)
         setIsMovingLeft(true)
 
-        flushSync(() => {
-          setPlayerX((prev) => {
-            const speed = isShiftHeld ? 0.5 : 1.5
-            const newX = Math.max(prev - speed, 5)
+        setPlayerX((prev) => {
+          const speed = isShiftHeld ? 0.5 : 1.5
+          const newX = Math.max(prev - speed, 5)
 
-            if (newX <= 10 && currentScene === 1) {
-              setCurrentScene(0)
-              flushSync(() => {
-                setPlayerX(85)
-              })
-              return newX
-            }
-            return newX
-          })
+          if (newX <= 10 && currentScene === 1 && !isTransitioningRef.current) {
+            isTransitioningRef.current = true
+
+            setCurrentScene(0)
+            setPlayerX(80)
+
+            setTimeout(() => {
+              isTransitioningRef.current = false
+            }, 100)
+
+            return 80
+          }
+          return newX
         })
       }
     }

@@ -14,7 +14,6 @@ import baby from '@/assets/sprites/children/baby-1.png'
 import pill from '@/assets/sprites/children/pill.png'
 import cat from '@/assets/sprites/cat/cat-5.png'
 import toy from '@/assets/items/artifacts/toy.png'
-import { flushSync } from 'react-dom'
 
 function Playground() {
   const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai } = useGameStore()
@@ -108,6 +107,7 @@ function Playground() {
   ]
 
   const catPhraseIndexRef = useRef(0)
+  const isTransitioningRef = useRef(false)
 
   useEffect(() => {
     if (currentScene === 1 && isRoundActive && !tabletCaught && !showRoundEnd) {
@@ -366,46 +366,57 @@ function Playground() {
   // движение
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isRoundActive) return // Блокируем движение если раунд не активен
+      if (!isRoundActive) return
+      if (isTransitioningRef.current) return
 
       if (e.key === 'ArrowRight' || e.key === 'd') {
+        e.preventDefault()
         setIsMoving(true)
         setIsMovingLeft(false)
 
-        flushSync(() => {
-          setPlayerX((prev) => {
-            const newX = Math.min(prev + 2, 95)
+        setPlayerX((prev) => {
+          const newX = Math.min(prev + 2, 95)
 
-            if (newX >= 90 && currentScene === 0) {
-              setCurrentScene(1)
-              flushSync(() => {
-                setPlayerX(5)
-              })
-              return newX
-            }
-            return newX
-          })
+          if (newX >= 90 && currentScene === 0 && !isTransitioningRef.current) {
+            isTransitioningRef.current = true
+
+            setCurrentScene(1)
+            setPlayerX(5)
+
+            setTimeout(() => {
+              isTransitioningRef.current = false
+            }, 100)
+
+            return 5
+          }
+          return newX
         })
       }
+
       if (e.key === 'ArrowLeft' || e.key === 'a') {
+        e.preventDefault()
         setIsMoving(true)
         setIsMovingLeft(true)
 
-        flushSync(() => {
-          setPlayerX((prev) => {
-            const newX = Math.max(prev - 2, 5)
+        setPlayerX((prev) => {
+          const newX = Math.max(prev - 2, 5)
 
-            if (newX <= 10 && currentScene === 1) {
-              setCurrentScene(0)
-              flushSync(() => {
-                setPlayerX(95)
-              })
-              return newX
-            }
-            return newX
-          })
+          if (newX <= 10 && currentScene === 1 && !isTransitioningRef.current) {
+            isTransitioningRef.current = true
+
+            setCurrentScene(0)
+            setPlayerX(95)
+
+            setTimeout(() => {
+              isTransitioningRef.current = false
+            }, 100)
+
+            return 95
+          }
+          return newX
         })
       }
+
       if ((e.key === 'e' || e.key === 'E') && tablet && tablet.active && !tabletCaught && isRoundActive) {
         const playerPos = playerX / 100 * window.innerWidth
         const tabletPos = tablet.x / 100 * window.innerWidth
@@ -415,8 +426,10 @@ function Playground() {
       }
     }
 
-    const handleKeyUp = () => {
-      setIsMoving(false)
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'ArrowLeft' || e.key === 'a') {
+        setIsMoving(false)
+      }
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -426,7 +439,7 @@ function Playground() {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
     }
-  }, [currentScene, isRoundActive])
+  }, [currentScene, isRoundActive, tablet, tabletCaught, playerX])
 
   const handleContinue = () => {
     setLocation('kitchen')
