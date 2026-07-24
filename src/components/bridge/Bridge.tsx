@@ -260,7 +260,6 @@ function Bridge() {
       >
         <div className="bridge">
           <img
-            rel="preload"
             className="background"
             src={backgrounds[currentScene]}
             alt="Bridge background"

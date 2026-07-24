@@ -90,7 +90,6 @@ function Hallway() {
       >
         <div className="hallway">
           <img
-            rel="preload"
             className="background"
             src={bg}
             alt="Hallway background"

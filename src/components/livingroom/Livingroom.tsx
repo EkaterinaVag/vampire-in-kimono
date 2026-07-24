@@ -197,7 +197,6 @@ function Livingroom() {
       >
         <div className="livingroom">
           <img
-            rel="preload"
             className="background"
             src={bg}
             alt="Livingroom background"

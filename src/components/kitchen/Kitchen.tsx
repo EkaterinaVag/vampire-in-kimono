@@ -135,7 +135,6 @@ function Kitchen() {
         <SleepinessVignette>
           <div className="kitchen">
             <img
-              rel="preload"
               className="background"
               src={isFridgeOpen
                 ? bg

@@ -1,6 +1,6 @@
 import { useGameStore } from '@store/gameStore'
-
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import './Reset.css'
 
 export function ResetButton() {
@@ -21,7 +21,7 @@ export function ResetButton() {
         В начало игры
       </button>
 
-      {showConfirm && (
+      {showConfirm && createPortal(
         <div className="confirm-overlay" onClick={() => setShowConfirm(false)}>
           <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
             <h3>Вы уверены?</h3>
@@ -41,7 +41,8 @@ export function ResetButton() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

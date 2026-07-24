@@ -432,7 +432,6 @@ function Playground() {
       >
         <div className="playground">
           <img
-            rel="preload"
             className="background"
             src={backgrounds[currentScene]}
             alt="Playground background"
