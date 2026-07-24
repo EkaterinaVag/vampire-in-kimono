@@ -1,0 +1,445 @@
+.moon-field {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* --- КУСТ --- */
+.bush {
+  position: absolute;
+  bottom: 250px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  width: auto;
+  height: 450px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.bush:hover {
+  transform: translateX(-50%) scale(1.03);
+}
+
+/* --- КОШКА (в кусте) --- */
+.black-cat {
+  position: absolute;
+  bottom: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: catAppear 0.6s ease forwards;
+}
+
+@keyframes catAppear {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+.cat-eyes {
+  font-size: 2.5rem;
+  animation: eyeGlow 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes eyeGlow {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+  }
+
+  100% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5));
+  }
+}
+
+.cat-body {
+  width: 80px;
+  height: 40px;
+  background: radial-gradient(ellipse at center, #1a1a2e, #0d0d1a);
+  border-radius: 50%;
+  margin-top: -8px;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+/* --- КНОПКА ОТДАТЬ МОРОЖЕНОЕ --- */
+.give-icecream-btn {
+  position: fixed;
+  bottom: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 14px 32px;
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  color: #f5e6f0;
+  background: rgba(255, 200, 150, 0.2);
+  border: 2px solid rgba(255, 200, 150, 0.3);
+  border-radius: 40px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  animation: fadeInBtn 0.5s ease forwards;
+}
+
+.give-icecream-btn:hover {
+  background: rgba(255, 200, 150, 0.35);
+  transform: translateX(-50%) scale(1.05);
+  box-shadow: 0 0 40px rgba(255, 200, 150, 0.15);
+}
+
+@keyframes fadeInBtn {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* --- КОШКА СЫТАЯ --- */
+.cat-happy {
+  position: absolute;
+  bottom: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: catHappyAppear 0.8s ease forwards;
+}
+
+@keyframes catHappyAppear {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.3) rotate(-10deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) rotate(0deg);
+  }
+}
+
+.cat-happy-body {
+  font-size: 4rem;
+}
+
+.purr-text {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  color: #ffd9b0;
+  animation: purrPulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes purrPulse {
+  0% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+/* --- ФИНАЛЬНОЕ ИСПЫТАНИЕ --- */
+.final-test-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  animation: fadeInOverlay 0.5s ease forwards;
+}
+
+.final-test-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: rgba(20, 10, 30, 0.9);
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: 32px;
+  padding: 40px 50px;
+  max-width: 500px;
+  text-align: center;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.test-icon {
+  font-size: 3rem;
+}
+
+.final-test-content h2 {
+  font-family: 'Courier New', monospace;
+  font-size: 1.6rem;
+  color: #ffd9b0;
+  margin: 0;
+}
+
+.test-sentence {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  color: #f5e6f0;
+  padding: 12px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  line-height: 1.6;
+}
+
+.test-btn {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  color: #f5e6f0;
+  background: rgba(255, 200, 150, 0.2);
+  border: 2px solid rgba(255, 200, 150, 0.3);
+  border-radius: 40px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.test-btn:hover {
+  background: rgba(255, 200, 150, 0.35);
+  transform: scale(1.04);
+}
+
+@keyframes fadeInOverlay {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.7) rotate(-2deg);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* --- КНОПКИ ФИНАЛА --- */
+.final-buttons {
+  position: fixed;
+  bottom: 180px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  animation: fadeInBtn 0.5s ease forwards;
+}
+
+.final-btn {
+  padding: 14px 36px;
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  border-radius: 40px;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+  min-width: 220px;
+}
+
+.hand-btn {
+  color: #f5e6f0;
+  background: rgba(255, 200, 150, 0.2);
+  border: 2px solid rgba(255, 200, 150, 0.3);
+}
+
+.hand-btn:hover {
+  background: rgba(255, 200, 150, 0.35);
+  transform: scale(1.04);
+}
+
+.icecream-btn {
+  color: #f5e6f0;
+  background: rgba(255, 215, 0, 0.15);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.icecream-btn:hover {
+  background: rgba(255, 215, 0, 0.3);
+  transform: scale(1.04);
+}
+
+.turn-btn {
+  color: #f5e6f0;
+  background: rgba(100, 200, 255, 0.15);
+  border: 2px solid rgba(100, 200, 255, 0.3);
+}
+
+.turn-btn:hover {
+  background: rgba(100, 200, 255, 0.3);
+  transform: scale(1.04);
+}
+
+/* Стили для финального теста */
+.final-test-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.5s ease;
+}
+
+.final-test-content {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 2px solid #ffd700;
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  color: #fff;
+  position: relative;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+}
+
+.test-icon {
+  font-size: 3rem;
+  display: block;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.final-test-content h2 {
+  text-align: center;
+  color: #ffd700;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.test-text {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 12px;
+  margin: 15px 0;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  border-left: 3px solid #ffd700;
+  min-height: 60px;
+}
+
+.test-text p {
+  margin: 8px 0;
+}
+
+.test-continue-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffd700, #f7971e);
+  color: #1a1a2e;
+  font-weight: bold;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.test-continue-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+}
+
+.test-decorative {
+  margin-top: 20px;
+}
+
+.test-hint {
+  text-align: center;
+  color: #a8a8b3;
+  font-style: italic;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.test-complete-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  animation: pulse-glow 2s infinite;
+}
+
+.test-complete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(255, 107, 107, 0.5);
+  }
+}

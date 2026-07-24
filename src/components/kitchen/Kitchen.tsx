@@ -83,12 +83,6 @@ function KitchenContent() {
     if (!icecreamTaken) {
       setDialogText('Тут пусто. Кроме инея и… чего это?')
     }
-
-    if (returnFromFinal) {
-      setProgress('return_from_final', false)
-      setDialogText('Мороженое взято! Возвращайся на поляну.')
-      setTimeout(() => setLocation('moon_field'), 3000)
-    }
   }
 
   // мороженое
@@ -97,12 +91,19 @@ function KitchenContent() {
 
     setIsIcecreamFading(true)
 
+    const dialog = returnFromFinal
+      ? 'Мороженое взято! Возвращайся на поляну.'
+      : 'Слушай, вампир. Я не могу всего объяснить. Но эта коробка… она важная. Очень. Спрячь её в кимоно. Не ешь. Не потеряй. Пригодится. Позже. Обещаю.'
+
     setTimeout(() => {
       addItem('icecream')
       setProgress('kitchen_icecreamTaken', true)
-      setDialogText(
-        '«Слушай, вампир. Я не могу всего объяснить. Но эта коробка… она важная. Очень. Спрячь её в кимоно. Не ешь. Не потеряй. Пригодится. Позже. Обещаю.»'
-      )
+      setDialogText(dialog)
+
+      if (returnFromFinal) {
+        setProgress('return_from_final', false)
+        setTimeout(() => setLocation('moon_field'), 3000)
+      }
     }, 1500)
   }
 
