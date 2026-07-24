@@ -256,6 +256,7 @@ function Bridge() {
     >
       <div className="bridge">
         <img
+          rel="preload"
           className="background"
           src={backgrounds[currentScene]}
           alt="Bridge background"
@@ -363,7 +364,6 @@ function Bridge() {
   )
 }
 
-// ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ
 function getPlayerSprite(isMoving: boolean, isMovingLeft: boolean) {
   if (!isMoving) return playerStand
   if (isMovingLeft) return playerLeft

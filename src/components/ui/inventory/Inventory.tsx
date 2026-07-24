@@ -3,12 +3,21 @@ import { useGameStore } from '@store/gameStore'
 import './Inventory.css'
 import { ResetButton } from '@/components/Reset'
 
+import bag from '@/assets/ui/inventory-bag.png'
+import toy from '@/assets/items/artifacts/toy.png'
+import purr from '@/assets/items/artifacts/purr.png'
+import dill from '@/assets/items/artifacts/dill.png'
+import paw from '@/assets/items/artifacts/paw.png'
+import furr from '@/assets/items/artifacts/furr.png'
+import icecream from '@/assets/items/icecream.png'
+import coffee from '@/assets/items/coffee.png'
+
 const ARTIFACT_ICONS: Record<string, string> = {
-  wisdom_purr: 'src/assets/items/artifacts/purr.png',
-  rattle: 'src/assets/items/artifacts/toy.png',
-  heart_in_dill: 'src/assets/items/artifacts/dill.png',
-  silent_step: 'src/assets/items/artifacts/paw.png',
-  fur_clump: 'src/assets/items/artifacts/furr.png',
+  wisdom_purr: purr,
+  rattle: toy,
+  heart_in_dill: dill,
+  silent_step: paw,
+  fur_clump: furr,
 }
 
 const ARTIFACT_NAMES: Record<string, string> = {
@@ -20,8 +29,8 @@ const ARTIFACT_NAMES: Record<string, string> = {
 }
 
 const ITEMS_ICONS: Record<string, string> = {
-  icecream: 'src/assets/items/icecream.png',
-  raf: 'src/assets/items/coffee.png',
+  icecream: icecream,
+  raf: coffee,
 }
 
 const ITEMS_NAMES: Record<string, string> = {
@@ -83,7 +92,7 @@ export function Inventory() {
   return (
     <div className="inventory-wrapper">
       <button className="inventory-bag" onClick={() => setIsOpen(!isOpen)}>
-        <img src="src/assets/ui/inventory-bag.png" alt="Котомка" />
+        <img src={bag} alt="Котомка" />
         {artifacts.length > 0 && (
           <span className="badge">{artifacts.length}</span>
         )}
@@ -136,7 +145,7 @@ export function Inventory() {
             Закрыть
           </button>
 
-          <ResetButton/>
+          <ResetButton />
         </div>
       )}
     </div>

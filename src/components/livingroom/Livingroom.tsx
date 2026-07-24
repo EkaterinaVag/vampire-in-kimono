@@ -4,6 +4,12 @@ import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import './Livingroom.css'
 
+import bg from '@/assets/backgrounds/livingroom/livingroom.png'
+import timer from '@/assets/ui/timer-2.png'
+import catSeven from '@/assets/sprites/cat/cat-7.png'
+import cat from '@/assets/sprites/cat/cat-8.png'
+import furr from '@/assets/items/artifacts/furr.png'
+
 function Livingroom() {
   const {
     setProgress,
@@ -187,14 +193,15 @@ function Livingroom() {
     >
       <div className="livingroom">
         <img
+          rel="preload"
           className="background"
-          src="src/assets/backgrounds/livingroom/livingroom.png"
+          src={bg}
           alt="Livingroom background"
         />
 
         {isTimerActive && !isBagCaught && !isRoundFailed && (
           <div className="timer">
-            <img src="src/assets/ui/timer-2.png" loading="eager" alt="Таймер" className="timer-icon" />
+            <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
             <span className="timer-text">{timeLeft}</span>
           </div>
         )}
@@ -206,7 +213,7 @@ function Livingroom() {
             onClick={handleBagClick}
           >
             <img
-              src='src/assets/sprites/cat/cat-7.png'
+              src={catSeven}
               alt="Пакет с котом"
               className="bag-image"
             />
@@ -217,7 +224,7 @@ function Livingroom() {
         {isBagCaught && (
           <div className="cat-saved">
             <img
-              src="src/assets/sprites/cat/cat-8.png"
+              src={cat}
               alt="Спасённый кот"
               className="cat-happy"
             />
@@ -239,7 +246,7 @@ function Livingroom() {
         {showArtifact && (
           <ArtifactNotification
             artifactName="Клок шерсти"
-            artifactIcon="src/assets/items/artifacts/furr.png"
+            artifactIcon={furr}
             onComplete={handleArtifactComplete}
           />
         )}

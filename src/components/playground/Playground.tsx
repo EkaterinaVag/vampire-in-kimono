@@ -4,6 +4,16 @@ import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import './Playground.css'
 
+import bg from '@/assets/backgrounds/playground/playground-1.png'
+import bgTwo from '@/assets/backgrounds/playground/playground-2.png'
+import playerStand from '@/assets/sprites/player/stand.png'
+import playerLeft from '@/assets/sprites/player/left.png'
+import playerRight from '@/assets/sprites/player/right.png'
+import baby from '@/assets/sprites/children/baby-1.png'
+import pill from '@/assets/sprites/children/pill.png'
+import cat from '@/assets/sprites/cat/cat-5.png'
+import toy from '@/assets/items/artifacts/toy.png'
+
 function Playground() {
   const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai } = useGameStore()
 
@@ -408,20 +418,7 @@ function Playground() {
     setShowArtifact(false)
   }
 
-  const backgrounds = [
-    'src/assets/backgrounds/playground/playground-1.png',
-    'src/assets/backgrounds/playground/playground-2.png',
-  ]
-
-  const getPlayerSprite = () => {
-    if (!isMoving) {
-      return 'src/assets/sprites/player/stand.png'
-    }
-    if (isMovingLeft) {
-      return 'src/assets/sprites/player/left.png'
-    }
-    return 'src/assets/sprites/player/right.png'
-  }
+  const backgrounds = [bg, bgTwo]
 
   return (
     <GameLayout
@@ -431,6 +428,7 @@ function Playground() {
     >
       <div className="playground">
         <img
+          rel="preload"
           className="background"
           src={backgrounds[currentScene]}
           alt="Playground background"
@@ -441,7 +439,7 @@ function Playground() {
           style={{ left: `${playerX}%` }}
         >
           <img
-            src={getPlayerSprite()}
+            src={getPlayerSprite(isMoving, isMovingLeft)}
             alt="Вампир в кимоно"
             className="player-sprite-one"
             style={{
@@ -495,7 +493,7 @@ function Playground() {
             }}
           >
             <img
-              src="src/assets/sprites/children/baby-1.png"
+              src={baby}
               alt="Ребёнок"
             />
           </div>
@@ -511,7 +509,7 @@ function Playground() {
           >
             <span className="tablet-icon">
               <img
-                src="src/assets/sprites/children/pill.png"
+                src={pill}
                 alt="Таблетка"
               />
             </span>
@@ -522,7 +520,7 @@ function Playground() {
         {currentScene === 1 && (
           <img
             className='cat-lie'
-            src='src/assets/sprites/cat/cat-5.png'
+            src={cat}
             alt="кошка"
           />
         )}
@@ -534,13 +532,19 @@ function Playground() {
         {showArtifact && (
           <ArtifactNotification
             artifactName="Погремушка забытого детства"
-            artifactIcon="src/assets/items/artifacts/toy.png"
+            artifactIcon={toy}
             onComplete={handleArtifactComplete}
           />
         )}
       </div>
     </GameLayout>
   )
+}
+
+function getPlayerSprite(isMoving: boolean, isMovingLeft: boolean) {
+  if (!isMoving) return playerStand
+  if (isMovingLeft) return playerLeft
+  return playerRight
 }
 
 export default Playground

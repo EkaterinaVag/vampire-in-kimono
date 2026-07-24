@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useGameStore } from '@store/gameStore'
 import './Prologue.css'
 
+import bg from '@/assets/backgrounds/prologue/prologue.png'
+
 function Prologue() {
   const {
     prologueCompleted,
@@ -51,8 +53,9 @@ function Prologue() {
   return (
     <div className="prologue">
       <img
+        rel="preload"
         className="background"
-        src="src/assets/backgrounds/prologue/prologue.png"
+        src={bg}
         alt="Prologue background"
       />
 
