@@ -5,7 +5,7 @@
   overflow: hidden;
 }
 
-.player {
+.player-one {
   position: absolute;
   bottom: 100px;
   z-index: 2;
@@ -13,14 +13,14 @@
   transition: left 0.1s ease;
 }
 
-.player-sprite {
+.player-sprite-one {
   width: auto;
   height: 350px;
   image-rendering: pixelated;
   filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
 }
 
-.player.moving .player-sprite {
+.player-one.moving .player-sprite-one {
   animation: walk 0.3s steps(2) infinite;
 }
 
@@ -301,8 +301,8 @@
 .cat-lie {
   position: absolute;
   right: 0;
-  bottom: 180px;
-  height: 200px;
+  bottom: 150px;
+  height: 180px;
   width: auto;
   z-index: 1;
 }

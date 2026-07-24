@@ -88,6 +88,23 @@ function Playground() {
     tabletSpawnedRef.current = false
   }
 
+  const catPhrases = [
+    '«Этот мир слишком шумный. Я предпочитаю пакеты. Они шуршат. И в них можно спрятаться от детей. Дети - это страшно. Особенно когда они бегают и орут.»',
+    '«Падающие дети - это всегда смешно»',
+  ]
+
+  const catPhraseIndexRef = useRef(0)
+
+  useEffect(() => {
+    if (currentScene === 1 && isRoundActive && !tabletCaught && !showRoundEnd) {
+      const currentPhrase = catPhrases[catPhraseIndexRef.current % catPhrases.length]
+      setDialogText(currentPhrase)
+      catPhraseIndexRef.current += 1
+    } else {
+      setDialogText('')
+    }
+  }, [currentScene])
+
   const handleChildCollision = () => {
     if (!isRoundActive || tabletCaught) return
     if (collisionCooldownRef.current) return
@@ -420,13 +437,13 @@ function Playground() {
         />
 
         <div
-          className={`player ${isMoving ? 'moving' : ''}`}
+          className={`player-one ${isMoving ? 'moving' : ''}`}
           style={{ left: `${playerX}%` }}
         >
           <img
             src={getPlayerSprite()}
             alt="Вампир в кимоно"
-            className="player-sprite"
+            className="player-sprite-one"
             style={{
               transform: !isMovingLeft ? 'scaleX(-1)' : 'scaleX(1)',
             }}
