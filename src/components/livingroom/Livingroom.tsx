@@ -11,7 +11,7 @@ import catSeven from '@/assets/sprites/cat/cat-7.png'
 import cat from '@/assets/sprites/cat/cat-8.png'
 import furr from '@/assets/items/artifacts/furr.png'
 
-function Livingroom() {
+function LivingroomContent() {
   const {
     setProgress,
     setLocation,
@@ -38,8 +38,6 @@ function Livingroom() {
   const timerRef = useRef<number | null>(null)
   const moveIntervalRef = useRef<number | null>(null)
   const dialogTimeoutRef = useRef<number | null>(null)
-
-  const images = [bg, timer, catSeven, cat, furr]
 
   const runningPhrases = [
     '«Я - тигр! Я - лев! Я - тот, кто шуршит!»',
@@ -189,72 +187,80 @@ function Livingroom() {
   }
 
   return (
-    <LoadingScreen images={images}>
-      <GameLayout
-        dialogText={dialogText || 'Кот в пакете! Нажми на него 3 раза за 10 секунд!'}
-        showNextBtn={isShowNextBtn}
-        onNext={handleContinue}
-      >
-        <div className="livingroom">
-          <img
-            className="background"
-            src={bg}
-            alt="Livingroom background"
-          />
+    <GameLayout
+      dialogText={dialogText || 'Кот в пакете! Нажми на него 3 раза за 10 секунд!'}
+      showNextBtn={isShowNextBtn}
+      onNext={handleContinue}
+    >
+      <div className="livingroom">
+        <img
+          className="background"
+          src={bg}
+          alt="Livingroom background"
+        />
 
-          {isTimerActive && !isBagCaught && !isRoundFailed && (
-            <div className="timer">
-              <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
-              <span className="timer-text">{timeLeft}</span>
-            </div>
-          )}
+        {isTimerActive && !isBagCaught && !isRoundFailed && (
+          <div className="timer">
+            <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
+            <span className="timer-text">{timeLeft}</span>
+          </div>
+        )}
 
-          {!isBagCaught && !isRoundFailed && (
-            <div
-              className="bag-sprite"
-              style={{ left: `${bagX}%`, top: `${bagY}%` }}
-              onClick={handleBagClick}
-            >
-              <img
-                src={catSeven}
-                alt="Пакет с котом"
-                className="bag-image"
-              />
-              <span className="click-hint">[КЛИКНИ]</span>
-            </div>
-          )}
-
-          {isBagCaught && (
-            <div className="cat-saved">
-              <img
-                src={cat}
-                alt="Спасённый кот"
-                className="cat-happy"
-              />
-            </div>
-          )}
-
-          {isRoundFailed && (
-            <div className="round-fail-overlay">
-              <div className="round-fail-message">
-                <span className="fail-icon">💥</span>
-                <span className="fail-title">Кот врезался в стену!</span>
-                <button className="fail-btn" onClick={resetRound}>
-                  [ ПЕРЕЗАПУСТИТЬ ]
-                </button>
-              </div>
-            </div>
-          )}
-
-          {showArtifact && (
-            <ArtifactNotification
-              artifactName="Клок шерсти"
-              artifactIcon={furr}
-              onComplete={handleArtifactComplete}
+        {!isBagCaught && !isRoundFailed && (
+          <div
+            className="bag-sprite"
+            style={{ left: `${bagX}%`, top: `${bagY}%` }}
+            onClick={handleBagClick}
+          >
+            <img
+              src={catSeven}
+              alt="Пакет с котом"
+              className="bag-image"
             />
-          )}
-        </div>
-      </GameLayout>
+            <span className="click-hint">[КЛИКНИ]</span>
+          </div>
+        )}
+
+        {isBagCaught && (
+          <div className="cat-saved">
+            <img
+              src={cat}
+              alt="Спасённый кот"
+              className="cat-happy"
+            />
+          </div>
+        )}
+
+        {isRoundFailed && (
+          <div className="round-fail-overlay">
+            <div className="round-fail-message">
+              <span className="fail-icon">💥</span>
+              <span className="fail-title">Кот врезался в стену!</span>
+              <button className="fail-btn" onClick={resetRound}>
+                [ ПЕРЕЗАПУСТИТЬ ]
+              </button>
+            </div>
+          </div>
+        )}
+
+        {showArtifact && (
+          <ArtifactNotification
+            artifactName="Клок шерсти"
+            artifactIcon={furr}
+            onComplete={handleArtifactComplete}
+          />
+        )}
+      </div>
+    </GameLayout>
+  )
+}
+
+function Livingroom() {
+  const images = [bg, timer, catSeven, cat, furr]
+
+  return (
+    <LoadingScreen images={images} minLoadingTime={1000}>
+      <LivingroomContent />
     </LoadingScreen>
   )
 }

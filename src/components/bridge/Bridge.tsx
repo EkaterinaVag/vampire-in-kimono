@@ -13,7 +13,7 @@ import playerLeft from '@/assets/sprites/player/left.png'
 import playerRight from '@/assets/sprites/player/right.png'
 import paw from '@/assets/items/artifacts/paw.png'
 
-function Bridge() {
+function BridgeContent() {
   const {
     setProgress,
     setLocation,
@@ -42,8 +42,6 @@ function Bridge() {
   const runningTimeRef = useRef<number>(0)
 
   const isTransitioningRef = useRef(false)
-
-  const images = [catSprite, bg, bgTwo, playerStand, playerLeft, playerRight, paw]
 
   // ГЕНЕРАЦИЯ СЛУЧАЙНЫХ ЗНАЧЕНИЙ ДЛЯ ОБЛОМКОВ
   const [debrisPieces] = useState(() => {
@@ -276,119 +274,117 @@ function Bridge() {
   ]
 
   return (
-    <LoadingScreen images={images}>
-      <GameLayout
-        dialogText={dialogText}
-        showNextBtn={isShowNextBtn}
-        onNext={handleContinue}
-      >
-        <div className="bridge">
+    <GameLayout
+      dialogText={dialogText}
+      showNextBtn={isShowNextBtn}
+      onNext={handleContinue}
+    >
+      <div className="bridge">
+        <img
+          className="background"
+          src={backgrounds[currentScene]}
+          alt="Bridge background"
+        />
+
+        {showCracks && !isFalling && !isPassed && (
+          <div className="crack-overlay">
+            <div className="crack-line" style={{ left: '50%', animationDelay: '0s' }}></div>
+            <div className="crack-line" style={{ left: '58%', animationDelay: '0.3s' }}></div>
+            <div className="crack-line" style={{ left: '65%', animationDelay: '0.6s' }}></div>
+          </div>
+        )}
+
+        {isFalling && (
+          <>
+            <div className="falling-flash" />
+            <div className="debris">
+              {debrisPieces.map((piece, i) => (
+                <div
+                  key={i}
+                  className="debris-piece"
+                  style={{
+                    left: `${piece.left}%`,
+                    top: `${piece.top}%`,
+                    width: `${piece.width}px`,
+                    height: `${piece.height}px`,
+                    animationDelay: `${piece.delay}s`,
+                    transform: `rotate(${piece.rotation}deg)`,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="dust-cloud" />
+          </>
+        )}
+
+        <div
+          className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''}`}
+          style={{
+            left: `${playerX}%`,
+            bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
+            transform: isFalling
+              ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.3, 1 - playerY / 200)})`
+              : 'none',
+            opacity: isFalling ? Math.max(0, 1 - playerY / 150) : 1,
+          }}
+        >
           <img
-            className="background"
-            src={backgrounds[currentScene]}
-            alt="Bridge background"
+            src={getPlayerSprite(isMoving, isMovingLeft)}
+            alt="Вампир"
+            className="player-sprite"
+            style={{
+              transform: !isMovingLeft && !isFalling ? 'scaleX(-1)' : 'scaleX(1)',
+            }}
           />
 
-          {showCracks && !isFalling && !isPassed && (
-            <div className="crack-overlay">
-              <div className="crack-line" style={{ left: '50%', animationDelay: '0s' }}></div>
-              <div className="crack-line" style={{ left: '58%', animationDelay: '0.3s' }}></div>
-              <div className="crack-line" style={{ left: '65%', animationDelay: '0.6s' }}></div>
+          {isFalling && (
+            <div className="fall-trails">
+              {fallTrails.map((trail, i) => (
+                <div
+                  key={i}
+                  className="fall-trail"
+                  style={{
+                    left: `${trail.left}%`,
+                    animationDelay: `${trail.delay}s`,
+                    width: `${trail.width}px`,
+                    height: `${trail.height}px`,
+                  }}
+                />
+              ))}
             </div>
           )}
-
-          {isFalling && (
-            <>
-              <div className="falling-flash" />
-              <div className="debris">
-                {debrisPieces.map((piece, i) => (
-                  <div
-                    key={i}
-                    className="debris-piece"
-                    style={{
-                      left: `${piece.left}%`,
-                      top: `${piece.top}%`,
-                      width: `${piece.width}px`,
-                      height: `${piece.height}px`,
-                      animationDelay: `${piece.delay}s`,
-                      transform: `rotate(${piece.rotation}deg)`,
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="dust-cloud" />
-            </>
-          )}
-
-          <div
-            className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''}`}
-            style={{
-              left: `${playerX}%`,
-              bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
-              transform: isFalling
-                ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.3, 1 - playerY / 200)})`
-                : 'none',
-              opacity: isFalling ? Math.max(0, 1 - playerY / 150) : 1,
-            }}
-          >
-            <img
-              src={getPlayerSprite(isMoving, isMovingLeft)}
-              alt="Вампир"
-              className="player-sprite"
-              style={{
-                transform: !isMovingLeft && !isFalling ? 'scaleX(-1)' : 'scaleX(1)',
-              }}
-            />
-
-            {isFalling && (
-              <div className="fall-trails">
-                {fallTrails.map((trail, i) => (
-                  <div
-                    key={i}
-                    className="fall-trail"
-                    style={{
-                      left: `${trail.left}%`,
-                      animationDelay: `${trail.delay}s`,
-                      width: `${trail.width}px`,
-                      height: `${trail.height}px`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {isFalling && (
-            <div
-              className="screen-shake"
-              style={{
-                transform: `translate(${Math.sin(shakeAmount) * 5}px, ${Math.cos(shakeAmount * 1.3) * 5}px)`
-              }}
-            />
-          )}
-
-          {currentScene === 1 && (
-            <img
-              className='cat-cat'
-              src={catSprite}
-              alt="кошка"
-            />
-          )}
-
-          <div className="controls-hint">
-            ← → или A D - движение | SHIFT - медленный шаг
-          </div>
-
-          {showArtifact && (
-            <ArtifactNotification
-              artifactName="Тихий шаг"
-              artifactIcon={paw}
-              onComplete={handleArtifactComplete}
-            />
-          )}
         </div>
-      </GameLayout>
-    </LoadingScreen>
+
+        {isFalling && (
+          <div
+            className="screen-shake"
+            style={{
+              transform: `translate(${Math.sin(shakeAmount) * 5}px, ${Math.cos(shakeAmount * 1.3) * 5}px)`
+            }}
+          />
+        )}
+
+        {currentScene === 1 && (
+          <img
+            className='cat-cat'
+            src={catSprite}
+            alt="кошка"
+          />
+        )}
+
+        <div className="controls-hint">
+          ← → или A D - движение | SHIFT - медленный шаг
+        </div>
+
+        {showArtifact && (
+          <ArtifactNotification
+            artifactName="Тихий шаг"
+            artifactIcon={paw}
+            onComplete={handleArtifactComplete}
+          />
+        )}
+      </div>
+    </GameLayout>
   )
 }
 
@@ -396,6 +392,16 @@ function getPlayerSprite(isMoving: boolean, isMovingLeft: boolean) {
   if (!isMoving) return playerStand
   if (isMovingLeft) return playerLeft
   return playerRight
+}
+
+function Bridge() {
+  const images = [catSprite, bg, bgTwo, playerStand, playerLeft, playerRight, paw]
+
+  return (
+    <LoadingScreen images={images} minLoadingTime={1000}>
+      <BridgeContent />
+    </LoadingScreen>
+  )
 }
 
 export default Bridge

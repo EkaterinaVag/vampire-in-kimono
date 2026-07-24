@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { useGameStore } from '@store/gameStore'
 import './Hallway.css'
 import { GameLayout } from '@components/GameLayout'
@@ -11,7 +11,7 @@ import catThree from '@/assets/sprites/cat/cat-3.png'
 import timer from '@/assets/ui/timer-2.png'
 import purr from '@/assets/items/artifacts/purr.png'
 
-function Hallway() {
+function HallwayContent() {
   const { setProgress, setLocation, obtainArtifact, addChokopai, applyFurClump } =
     useGameStore()
 
@@ -22,8 +22,6 @@ function Hallway() {
   const [isShowHextBtn, setIsShowHextBtn] = useState(false)
   const [showArtifact, setShowArtifact] = useState(false)
   const timerRef = useRef<number | null>(null)
-
-  const images = [bg, cat, catThree, timer, purr]
 
   useEffect(() => {
     if (!isTimerActive) return
@@ -82,7 +80,6 @@ function Hallway() {
   }
 
   return (
-    <LoadingScreen images={images}>
       <GameLayout
         dialogText={dialogText || 'Кот жуёт наполнитель. У тебя есть 3 секунды, чтобы его спасти!'}
         showNextBtn={isShowHextBtn}
@@ -128,6 +125,15 @@ function Hallway() {
           )}
         </div>
       </GameLayout>
+  )
+}
+
+function Hallway() {
+  const images = [bg, cat, catThree, timer, purr]
+
+  return (
+    <LoadingScreen images={images} minLoadingTime={1000}>
+      <HallwayContent />
     </LoadingScreen>
   )
 }
