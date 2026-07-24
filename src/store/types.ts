@@ -54,6 +54,8 @@ export interface GameStore {
     livingroom_bagCatSaved: boolean
     moon_icecreamGiven: boolean
     moon_sequenceCompleted: boolean
+
+    return_from_final: boolean
   }
 
   setProgress: <K extends keyof GameStore['progress']>(

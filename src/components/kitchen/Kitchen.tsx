@@ -37,6 +37,12 @@ function KitchenContent() {
   const [isFridgeOpen, setIsFridgeOpen] = useState(false)
   const [isIcecreamFading, setIsIcecreamFading] = useState(false)
 
+  const returnFromFinal = useGameStore((state) => state.progress.return_from_final)
+
+  const initialDialog = returnFromFinal
+    ? 'Ах да, ты же за мороженым! Забери его из холодильника.'
+    : 'Знаешь, как редко бессмертные получают еду, приготовленную с любовью? Никогда. Они едят кровь. Или заказывают доставку. А тут… окрошка. Я попробовал. Там укроп. Много укропа. Я не люблю укроп. Но почему-то не выплюнул.'
+
   // выбор
   const handleChoice = (choice: 'okroshka' | 'blood') => {
     if (selectedChoice) return
@@ -76,6 +82,12 @@ function KitchenContent() {
 
     if (!icecreamTaken) {
       setDialogText('Тут пусто. Кроме инея и… чего это?')
+    }
+
+    if (returnFromFinal) {
+      setProgress('return_from_final', false)
+      setDialogText('Мороженое взято! Возвращайся на поляну.')
+      setTimeout(() => setLocation('moon_field'), 3000)
     }
   }
 
@@ -125,7 +137,7 @@ function KitchenContent() {
 
   return (
     <GameLayout
-      dialogText={dialogText || 'Знаешь, как редко бессмертные получают еду, приготовленную с любовью? Никогда. Они едят кровь. Или заказывают доставку. А тут… окрошка. Я попробовал. Там укроп. Много укропа. Я не люблю укроп. Но почему-то не выплюнул.'}
+      dialogText={dialogText || initialDialog}
       showNextBtn={isShowNextBtn}
       onNext={handleContinue}
     >

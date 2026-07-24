@@ -23,6 +23,7 @@ const getInitialState = (): Omit<GameStore,
     livingroom_bagCatSaved: false,
     moon_icecreamGiven: false,
     moon_sequenceCompleted: false,
+    return_from_final: false
   },
   items: [],
   chokopai: { max: 3 as 3 | 4, current: 3 },

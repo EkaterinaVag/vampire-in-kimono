@@ -239,7 +239,7 @@ function BridgeContent() {
 
   // ПРОВЕРКА ПРОХОЖДЕНИЯ МОСТА
   useEffect(() => {
-    if (currentScene === 1 && playerX >= 90 && !isPassed && !isFalling) {
+    if (currentScene === 1 && playerX >= 85 && !isPassed && !isFalling) {
       setDialogText(
         runningTimeRef.current > 0
           ? 'Ты прошёл, но бежал. Мост мог рухнуть. В следующий раз иди тихо.'
