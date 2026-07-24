@@ -4,6 +4,12 @@ import './Hallway.css'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 
+import bg from '@/assets/backgrounds/hallway/hallway.png'
+import cat from '@/assets/sprites/cat/cat.png'
+import catThree from '@/assets/sprites/cat/cat-3.png'
+import timer from '@/assets/ui/timer-2.png'
+import purr from '@/assets/items/artifacts/purr.png'
+
 function Hallway() {
   const { setProgress, setLocation, obtainArtifact, addChokopai, applyFurClump } =
     useGameStore()
@@ -81,7 +87,7 @@ function Hallway() {
       <div className="hallway">
         <img
           className="background"
-          src="src/assets/backgrounds/hallway/hallway.png"
+          src={bg}
           alt="Hallway background"
         />
 
@@ -92,7 +98,7 @@ function Hallway() {
         >
           <img
             className='cat-image'
-            src={`${isCatSaved ? "src/assets/sprites/cat/cat-3.png" : "src/assets/sprites/cat/cat.png"}`}
+            src={`${isCatSaved ? catThree : cat}`}
             alt="Cat eating litter"
           />
           <div className="litter-trails">
@@ -104,7 +110,7 @@ function Hallway() {
 
         {isTimerActive && !isCatSaved && (
           <div className="timer">
-            <img src="src/assets/ui/timer-2.png" loading="eager" alt="Таймер" className="timer-icon" />
+            <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
             <span className="timer-text">{timeLeft}</span>
           </div>
         )}
@@ -112,7 +118,7 @@ function Hallway() {
         {showArtifact && (
           <ArtifactNotification
             artifactName="Мудрое мурчание"
-            artifactIcon="src/assets/items/artifacts/purr.png"
+            artifactIcon={purr}
             onComplete={handleArtifactComplete}
           />
         )}

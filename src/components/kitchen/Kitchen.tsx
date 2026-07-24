@@ -5,6 +5,15 @@ import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotific
 import { SleepinessVignette } from '../ui/sleepinessVignette/SleepinessVignette'
 import './Kitchen.css'
 
+import bg from '@/assets/backgrounds/kitchen/kitchen-2.png'
+import bgTwo from '@/assets/backgrounds/kitchen/kitchen.png'
+import icecream from '@/assets/items/icecream.png'
+import blood from '@/assets/items/blood.png'
+import soup from '@/assets//items/soup.png'
+import catTwo from '@/assets/sprites/cat/cat-2.png'
+import coffee from '@/assets/items/coffee.png'
+import dill from '@/assets/items/artifacts/dill.png'
+
 function Kitchen() {
   const {
     setProgress,
@@ -125,8 +134,8 @@ function Kitchen() {
           <img
             className="background"
             src={isFridgeOpen
-              ? "src/assets/backgrounds/kitchen/kitchen-2.png"
-              : "src/assets/backgrounds/kitchen/kitchen.png"
+              ? bg
+              : bgTwo
             }
             alt="Kitchen background"
           />
@@ -146,7 +155,7 @@ function Kitchen() {
                 style={{ cursor: isIcecreamFading ? 'default' : 'pointer' }}
               >
                 {!icecreamTaken && (
-                  <><img src="src/assets/items/icecream.png" alt="Мороженое" />
+                  <><img src={icecream} alt="Мороженое" />
                     <span className="item-label">Взять мороженое</span>
                   </>
                 )}
@@ -163,7 +172,7 @@ function Kitchen() {
                 onClick={() => handleChoice('blood')}
                 style={{ cursor: selectedChoice ? 'default' : 'pointer' }}
               >
-                <img src="src/assets/items/blood.png" alt="Кровь" />
+                <img src={blood} alt="Кровь" />
                 <span className="item-label">Кровь</span>
               </div>
 
@@ -172,7 +181,7 @@ function Kitchen() {
                 onClick={() => handleChoice('okroshka')}
                 style={{ cursor: selectedChoice ? 'default' : 'pointer' }}
               >
-                <img src="src/assets/items/soup.png" alt="Окрошка" />
+                <img src={soup} alt="Окрошка" />
                 <span className="item-label">Окрошка</span>
               </div>
 
@@ -180,7 +189,7 @@ function Kitchen() {
                 className={`cat ${selectedChoice ? 'active' : 'inactive'}`}
                 onClick={selectedChoice ? handleCatClick : undefined}
               >
-                <img src="src/assets/sprites/cat/cat-2.png" alt="cat" />
+                <img src={catTwo} alt="cat" />
               </div>
 
               {!rafTaken && (
@@ -189,7 +198,7 @@ function Kitchen() {
                   onClick={handleRafClick}
                   style={{ cursor: rafTaken ? 'default' : 'pointer' }}
                 >
-                  <img src="src/assets/items/coffee.png" alt="Кофе" />
+                  <img src={coffee} alt="Кофе" />
                 </div>
               )}
             </>
@@ -198,7 +207,7 @@ function Kitchen() {
           {showArtifact && (
             <ArtifactNotification
               artifactName="Сердце в укропе"
-              artifactIcon="src/assets/items/artifacts/dill.png"
+              artifactIcon={dill}
               onComplete={handleArtifactComplete}
             />
           )}

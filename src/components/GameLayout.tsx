@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Inventory } from '@/components/ui/inventory/Inventory'
 import { Lives } from '@/components/ui/lives/Lives'
 import './GameLayout.css'
+import bg from '@/assets/backgrounds/text-bg.png'
 
 interface GameLayoutProps {
   children: ReactNode
@@ -29,7 +30,7 @@ export function GameLayout({
       {/* Диалоговое окно */}
       {dialogText && (
         <div className="bg-text">
-          <img src="src/assets/backgrounds/text-bg.png" alt="text background" />
+          <img src={bg} alt="text background" />
           <div className="dialog-text">{dialogText}</div>
         </div>
       )}

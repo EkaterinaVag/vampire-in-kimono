@@ -4,6 +4,14 @@ import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import './Bridge.css'
 
+import catSprite from '@/assets/sprites/cat/cat-9.png'
+import bg from '@/assets/backgrounds/bridge/bridge-1.jpg'
+import bgTwo from '@/assets/backgrounds/bridge/bridge-2.jpg'
+import playerStand from '@/assets/sprites/player/stand.png'
+import playerLeft from '@/assets/sprites/player/left.png'
+import playerRight from '@/assets/sprites/player/right.png'
+import paw from '@/assets/items/artifacts/paw.png'
+
 function Bridge() {
   const {
     setProgress,
@@ -236,8 +244,8 @@ function Bridge() {
   }
 
   const backgrounds = [
-    'src/assets/backgrounds/bridge/bridge-1.jpg',
-    'src/assets/backgrounds/bridge/bridge-2.jpg',
+    bg,
+    bgTwo,
   ]
 
   return (
@@ -334,7 +342,7 @@ function Bridge() {
         {currentScene === 1 && (
           <img
             className='cat-cat'
-            src='src/assets/sprites/cat/cat-9.png'
+            src={catSprite}
             alt="кошка"
           />
         )}
@@ -346,7 +354,7 @@ function Bridge() {
         {showArtifact && (
           <ArtifactNotification
             artifactName="Тихий шаг"
-            artifactIcon="src/assets/items/artifacts/paw.png"
+            artifactIcon={paw}
             onComplete={handleArtifactComplete}
           />
         )}
@@ -357,9 +365,9 @@ function Bridge() {
 
 // ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ
 function getPlayerSprite(isMoving: boolean, isMovingLeft: boolean) {
-  if (!isMoving) return 'src/assets/sprites/player/stand.png'
-  if (isMovingLeft) return 'src/assets/sprites/player/left.png'
-  return 'src/assets/sprites/player/right.png'
+  if (!isMoving) return playerStand
+  if (isMovingLeft) return playerLeft
+  return playerRight
 }
 
 export default Bridge
