@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
+import { LoadingScreen } from '../LoadingScreen'
 import './Bridge.css'
 
 import catSprite from '@/assets/sprites/cat/cat-9.png'
@@ -39,6 +40,8 @@ function Bridge() {
 
   const fallAnimationRef = useRef<number | null>(null)
   const runningTimeRef = useRef<number>(0)
+
+  const images = [catSprite, bg, bgTwo, playerStand, playerLeft, playerRight, paw]
 
   // ГЕНЕРАЦИЯ СЛУЧАЙНЫХ ЗНАЧЕНИЙ ДЛЯ ОБЛОМКОВ
   const [debrisPieces] = useState(() => {
@@ -249,118 +252,120 @@ function Bridge() {
   ]
 
   return (
-    <GameLayout
-      dialogText={dialogText}
-      showNextBtn={isShowNextBtn}
-      onNext={handleContinue}
-    >
-      <div className="bridge">
-        <img
-          rel="preload"
-          className="background"
-          src={backgrounds[currentScene]}
-          alt="Bridge background"
-        />
-
-        {showCracks && !isFalling && !isPassed && (
-          <div className="crack-overlay">
-            <div className="crack-line" style={{ left: '50%', animationDelay: '0s' }}></div>
-            <div className="crack-line" style={{ left: '58%', animationDelay: '0.3s' }}></div>
-            <div className="crack-line" style={{ left: '65%', animationDelay: '0.6s' }}></div>
-          </div>
-        )}
-
-        {isFalling && (
-          <>
-            <div className="falling-flash" />
-            <div className="debris">
-              {debrisPieces.map((piece, i) => (
-                <div
-                  key={i}
-                  className="debris-piece"
-                  style={{
-                    left: `${piece.left}%`,
-                    top: `${piece.top}%`,
-                    width: `${piece.width}px`,
-                    height: `${piece.height}px`,
-                    animationDelay: `${piece.delay}s`,
-                    transform: `rotate(${piece.rotation}deg)`,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="dust-cloud" />
-          </>
-        )}
-
-        <div
-          className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''}`}
-          style={{
-            left: `${playerX}%`,
-            bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
-            transform: isFalling
-              ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.3, 1 - playerY / 200)})`
-              : 'none',
-            opacity: isFalling ? Math.max(0, 1 - playerY / 150) : 1,
-          }}
-        >
+    <LoadingScreen images={images}>
+      <GameLayout
+        dialogText={dialogText}
+        showNextBtn={isShowNextBtn}
+        onNext={handleContinue}
+      >
+        <div className="bridge">
           <img
-            src={getPlayerSprite(isMoving, isMovingLeft)}
-            alt="Вампир"
-            className="player-sprite"
-            style={{
-              transform: !isMovingLeft && !isFalling ? 'scaleX(-1)' : 'scaleX(1)',
-            }}
+            rel="preload"
+            className="background"
+            src={backgrounds[currentScene]}
+            alt="Bridge background"
           />
 
-          {isFalling && (
-            <div className="fall-trails">
-              {fallTrails.map((trail, i) => (
-                <div
-                  key={i}
-                  className="fall-trail"
-                  style={{
-                    left: `${trail.left}%`,
-                    animationDelay: `${trail.delay}s`,
-                    width: `${trail.width}px`,
-                    height: `${trail.height}px`,
-                  }}
-                />
-              ))}
+          {showCracks && !isFalling && !isPassed && (
+            <div className="crack-overlay">
+              <div className="crack-line" style={{ left: '50%', animationDelay: '0s' }}></div>
+              <div className="crack-line" style={{ left: '58%', animationDelay: '0.3s' }}></div>
+              <div className="crack-line" style={{ left: '65%', animationDelay: '0.6s' }}></div>
             </div>
           )}
-        </div>
 
-        {isFalling && (
+          {isFalling && (
+            <>
+              <div className="falling-flash" />
+              <div className="debris">
+                {debrisPieces.map((piece, i) => (
+                  <div
+                    key={i}
+                    className="debris-piece"
+                    style={{
+                      left: `${piece.left}%`,
+                      top: `${piece.top}%`,
+                      width: `${piece.width}px`,
+                      height: `${piece.height}px`,
+                      animationDelay: `${piece.delay}s`,
+                      transform: `rotate(${piece.rotation}deg)`,
+                    }}
+                  />
+                ))}
+              </div>
+              <div className="dust-cloud" />
+            </>
+          )}
+
           <div
-            className="screen-shake"
+            className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''}`}
             style={{
-              transform: `translate(${Math.sin(shakeAmount) * 5}px, ${Math.cos(shakeAmount * 1.3) * 5}px)`
+              left: `${playerX}%`,
+              bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
+              transform: isFalling
+                ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.3, 1 - playerY / 200)})`
+                : 'none',
+              opacity: isFalling ? Math.max(0, 1 - playerY / 150) : 1,
             }}
-          />
-        )}
+          >
+            <img
+              src={getPlayerSprite(isMoving, isMovingLeft)}
+              alt="Вампир"
+              className="player-sprite"
+              style={{
+                transform: !isMovingLeft && !isFalling ? 'scaleX(-1)' : 'scaleX(1)',
+              }}
+            />
 
-        {currentScene === 1 && (
-          <img
-            className='cat-cat'
-            src={catSprite}
-            alt="кошка"
-          />
-        )}
+            {isFalling && (
+              <div className="fall-trails">
+                {fallTrails.map((trail, i) => (
+                  <div
+                    key={i}
+                    className="fall-trail"
+                    style={{
+                      left: `${trail.left}%`,
+                      animationDelay: `${trail.delay}s`,
+                      width: `${trail.width}px`,
+                      height: `${trail.height}px`,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
 
-        <div className="controls-hint">
-          ← → или A D - движение | SHIFT - медленный шаг
+          {isFalling && (
+            <div
+              className="screen-shake"
+              style={{
+                transform: `translate(${Math.sin(shakeAmount) * 5}px, ${Math.cos(shakeAmount * 1.3) * 5}px)`
+              }}
+            />
+          )}
+
+          {currentScene === 1 && (
+            <img
+              className='cat-cat'
+              src={catSprite}
+              alt="кошка"
+            />
+          )}
+
+          <div className="controls-hint">
+            ← → или A D - движение | SHIFT - медленный шаг
+          </div>
+
+          {showArtifact && (
+            <ArtifactNotification
+              artifactName="Тихий шаг"
+              artifactIcon={paw}
+              onComplete={handleArtifactComplete}
+            />
+          )}
         </div>
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Тихий шаг"
-            artifactIcon={paw}
-            onComplete={handleArtifactComplete}
-          />
-        )}
-      </div>
-    </GameLayout>
+      </GameLayout>
+    </LoadingScreen>
   )
 }
 

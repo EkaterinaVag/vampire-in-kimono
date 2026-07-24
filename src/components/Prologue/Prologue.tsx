@@ -3,6 +3,7 @@ import { useGameStore } from '@store/gameStore'
 import './Prologue.css'
 
 import bg from '@/assets/backgrounds/prologue/prologue.png'
+import { LoadingScreen } from '../LoadingScreen'
 
 function Prologue() {
   const {
@@ -23,6 +24,20 @@ function Prologue() {
 
     `Вперёд. Кот уже ест наполнитель.»`,
   ]
+
+  const images = [bg]
+
+  useEffect(() => {
+    const link = document.createElement('link')
+    link.rel = 'preload'
+    link.as = 'image'
+    link.href = bg
+    document.head.appendChild(link)
+
+    return () => {
+      document.head.removeChild(link)
+    }
+  }, [])
 
   useEffect(() => {
     const allIndices = paragraphs.map((_, i) => i)
@@ -51,35 +66,36 @@ function Prologue() {
   if (prologueCompleted) return null
 
   return (
-    <div className="prologue">
-      <img
-        rel="preload"
-        className="background"
-        src={bg}
-        alt="Prologue background"
-      />
+    <LoadingScreen images={images}>
+      <div className="prologue">
+        <img
+          className="background"
+          src={bg}
+          alt="Prologue background"
+        />
 
-      <div className="prologue-overlay">
-        <div className="text-container">
-          {paragraphs.map((text, index) => (
-            <p
-              key={index}
-              className={`prologue-paragraph ${visibleParagraphs.includes(index) ? 'visible' : ''
-                }`}
-              style={{ transitionDelay: `${index * 0.3}s` }}
-            >
-              {text}
-            </p>
-          ))}
+        <div className="prologue-overlay">
+          <div className="text-container">
+            {paragraphs.map((text, index) => (
+              <p
+                key={index}
+                className={`prologue-paragraph ${visibleParagraphs.includes(index) ? 'visible' : ''
+                  }`}
+                style={{ transitionDelay: `${index * 0.3}s` }}
+              >
+                {text}
+              </p>
+            ))}
 
-          {isComplete && (
-            <button onClick={handleStart} className="start-button">
-              [ В ПУТЬ! ]
-            </button>
-          )}
+            {isComplete && (
+              <button onClick={handleStart} className="start-button">
+                [ В ПУТЬ! ]
+              </button>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </LoadingScreen >
   )
 }
 

@@ -3,6 +3,7 @@ import { useGameStore } from '@store/gameStore'
 import './Hallway.css'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
+import { LoadingScreen } from '../LoadingScreen'
 
 import bg from '@/assets/backgrounds/hallway/hallway.png'
 import cat from '@/assets/sprites/cat/cat.png'
@@ -21,6 +22,8 @@ function Hallway() {
   const [isShowHextBtn, setIsShowHextBtn] = useState(false)
   const [showArtifact, setShowArtifact] = useState(false)
   const timerRef = useRef<number | null>(null)
+
+  const images = [bg, cat, catThree, timer, purr]
 
   useEffect(() => {
     if (!isTimerActive) return
@@ -79,52 +82,54 @@ function Hallway() {
   }
 
   return (
-    <GameLayout
-      dialogText={dialogText || 'Кот жуёт наполнитель. У тебя есть 3 секунды, чтобы его спасти!'}
-      showNextBtn={isShowHextBtn}
-      onNext={handleContinue}
-    >
-      <div className="hallway">
-        <img
-          rel="preload"
-          className="background"
-          src={bg}
-          alt="Hallway background"
-        />
-
-        <div
-          className={`cat-sprite ${isCatSaved ? 'saved' : ''} ${!isCatSaved && !isTimerActive ? 'offended' : ''
-            }`}
-          onClick={isTimerActive ? handleCatClick : handleClickNextLevel}
-        >
+    <LoadingScreen images={images}>
+      <GameLayout
+        dialogText={dialogText || 'Кот жуёт наполнитель. У тебя есть 3 секунды, чтобы его спасти!'}
+        showNextBtn={isShowHextBtn}
+        onNext={handleContinue}
+      >
+        <div className="hallway">
           <img
-            className='cat-image'
-            src={`${isCatSaved ? catThree : cat}`}
-            alt="Cat eating litter"
+            rel="preload"
+            className="background"
+            src={bg}
+            alt="Hallway background"
           />
-          <div className="litter-trails">
-            <span className="litter-trail trail-1"></span>
-            <span className="litter-trail trail-2"></span>
-            <span className="litter-trail trail-3"></span>
+
+          <div
+            className={`cat-sprite ${isCatSaved ? 'saved' : ''} ${!isCatSaved && !isTimerActive ? 'offended' : ''
+              }`}
+            onClick={isTimerActive ? handleCatClick : handleClickNextLevel}
+          >
+            <img
+              className='cat-image'
+              src={`${isCatSaved ? catThree : cat}`}
+              alt="Cat eating litter"
+            />
+            <div className="litter-trails">
+              <span className="litter-trail trail-1"></span>
+              <span className="litter-trail trail-2"></span>
+              <span className="litter-trail trail-3"></span>
+            </div>
           </div>
+
+          {isTimerActive && !isCatSaved && (
+            <div className="timer">
+              <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
+              <span className="timer-text">{timeLeft}</span>
+            </div>
+          )}
+
+          {showArtifact && (
+            <ArtifactNotification
+              artifactName="Мудрое мурчание"
+              artifactIcon={purr}
+              onComplete={handleArtifactComplete}
+            />
+          )}
         </div>
-
-        {isTimerActive && !isCatSaved && (
-          <div className="timer">
-            <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
-            <span className="timer-text">{timeLeft}</span>
-          </div>
-        )}
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Мудрое мурчание"
-            artifactIcon={purr}
-            onComplete={handleArtifactComplete}
-          />
-        )}
-      </div>
-    </GameLayout>
+      </GameLayout>
+    </LoadingScreen>
   )
 }
 

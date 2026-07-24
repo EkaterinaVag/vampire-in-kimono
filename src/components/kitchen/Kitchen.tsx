@@ -3,6 +3,7 @@ import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import { SleepinessVignette } from '../ui/sleepinessVignette/SleepinessVignette'
+import { LoadingScreen } from '../LoadingScreen'
 import './Kitchen.css'
 
 import bg from '@/assets/backgrounds/kitchen/kitchen-2.png'
@@ -33,9 +34,10 @@ function Kitchen() {
   const [isShowNextBtn, setIsShowNextBtn] = useState(false)
   const [showArtifact, setShowArtifact] = useState(false)
 
-  // const [selectedChoice, setSelectedChoice] = useState<'okroshka' | 'blood' | null>(null)
   const [isFridgeOpen, setIsFridgeOpen] = useState(false)
   const [isIcecreamFading, setIsIcecreamFading] = useState(false)
+
+  const images = [bg, bgTwo, icecream, blood, soup, catTwo, coffee, dill]
 
   // выбор
   const handleChoice = (choice: 'okroshka' | 'blood') => {
@@ -124,97 +126,99 @@ function Kitchen() {
 
 
   return (
-    <GameLayout
-      dialogText={dialogText || 'Знаешь, как редко бессмертные получают еду, приготовленную с любовью? Никогда. Они едят кровь. Или заказывают доставку. А тут… окрошка. Я попробовал. Там укроп. Много укропа. Я не люблю укроп. Но почему-то не выплюнул.'}
-      showNextBtn={isShowNextBtn}
-      onNext={handleContinue}
-    >
-      <SleepinessVignette>
-        <div className="kitchen">
-          <img
-            rel="preload"
-            className="background"
-            src={isFridgeOpen
-              ? bg
-              : bgTwo
-            }
-            alt="Kitchen background"
-          />
-
-          {!isFridgeOpen && (
-            <div
-              className="kitchen-item fridge"
-              onClick={handleFridgeClick}
+    <LoadingScreen images={images}>
+      <GameLayout
+        dialogText={dialogText || 'Знаешь, как редко бессмертные получают еду, приготовленную с любовью? Никогда. Они едят кровь. Или заказывают доставку. А тут… окрошка. Я попробовал. Там укроп. Много укропа. Я не люблю укроп. Но почему-то не выплюнул.'}
+        showNextBtn={isShowNextBtn}
+        onNext={handleContinue}
+      >
+        <SleepinessVignette>
+          <div className="kitchen">
+            <img
+              rel="preload"
+              className="background"
+              src={isFridgeOpen
+                ? bg
+                : bgTwo
+              }
+              alt="Kitchen background"
             />
-          )}
 
-          {isFridgeOpen && (
-            <>
+            {!isFridgeOpen && (
               <div
-                className={`kitchen-item icecream ${isIcecreamFading ? 'fading' : ''}`}
-                onClick={handleTakeIcecream}
-                style={{ cursor: isIcecreamFading ? 'default' : 'pointer' }}
-              >
-                {!icecreamTaken && (
-                  <><img src={icecream} alt="Мороженое" />
-                    <span className="item-label">Взять мороженое</span>
-                  </>
-                )}
-              </div>
+                className="kitchen-item fridge"
+                onClick={handleFridgeClick}
+              />
+            )}
 
-              <button className='close-fridge' onClick={() => setIsFridgeOpen(false)}>[ ЗАКРЫТЬ ХОЛОДИЛЬНИК ]</button>
-            </>
-          )}
-
-          {!isFridgeOpen && (
-            <>
-              <div
-                className={`kitchen-item blood ${selectedChoice === 'blood' ? 'selected' : ''}`}
-                onClick={() => handleChoice('blood')}
-                style={{ cursor: selectedChoice ? 'default' : 'pointer' }}
-              >
-                <img src={blood} alt="Кровь" />
-                <span className="item-label">Кровь</span>
-              </div>
-
-              <div
-                className={`kitchen-item okroshka ${selectedChoice === 'okroshka' ? 'selected' : ''}`}
-                onClick={() => handleChoice('okroshka')}
-                style={{ cursor: selectedChoice ? 'default' : 'pointer' }}
-              >
-                <img src={soup} alt="Окрошка" />
-                <span className="item-label">Окрошка</span>
-              </div>
-
-              <div
-                className={`cat ${selectedChoice ? 'active' : 'inactive'}`}
-                onClick={selectedChoice ? handleCatClick : undefined}
-              >
-                <img src={catTwo} alt="cat" />
-              </div>
-
-              {!rafTaken && (
+            {isFridgeOpen && (
+              <>
                 <div
-                  className={`kitchen-item raf ${rafTaken ? 'taken' : ''}`}
-                  onClick={handleRafClick}
-                  style={{ cursor: rafTaken ? 'default' : 'pointer' }}
+                  className={`kitchen-item icecream ${isIcecreamFading ? 'fading' : ''}`}
+                  onClick={handleTakeIcecream}
+                  style={{ cursor: isIcecreamFading ? 'default' : 'pointer' }}
                 >
-                  <img src={coffee} alt="Кофе" />
+                  {!icecreamTaken && (
+                    <><img src={icecream} alt="Мороженое" />
+                      <span className="item-label">Взять мороженое</span>
+                    </>
+                  )}
                 </div>
-              )}
-            </>
-          )}
 
-          {showArtifact && (
-            <ArtifactNotification
-              artifactName="Сердце в укропе"
-              artifactIcon={dill}
-              onComplete={handleArtifactComplete}
-            />
-          )}
-        </div>
-      </SleepinessVignette>
-    </GameLayout >
+                <button className='close-fridge' onClick={() => setIsFridgeOpen(false)}>[ ЗАКРЫТЬ ХОЛОДИЛЬНИК ]</button>
+              </>
+            )}
+
+            {!isFridgeOpen && (
+              <>
+                <div
+                  className={`kitchen-item blood ${selectedChoice === 'blood' ? 'selected' : ''}`}
+                  onClick={() => handleChoice('blood')}
+                  style={{ cursor: selectedChoice ? 'default' : 'pointer' }}
+                >
+                  <img src={blood} alt="Кровь" />
+                  <span className="item-label">Кровь</span>
+                </div>
+
+                <div
+                  className={`kitchen-item okroshka ${selectedChoice === 'okroshka' ? 'selected' : ''}`}
+                  onClick={() => handleChoice('okroshka')}
+                  style={{ cursor: selectedChoice ? 'default' : 'pointer' }}
+                >
+                  <img src={soup} alt="Окрошка" />
+                  <span className="item-label">Окрошка</span>
+                </div>
+
+                <div
+                  className={`cat ${selectedChoice ? 'active' : 'inactive'}`}
+                  onClick={selectedChoice ? handleCatClick : undefined}
+                >
+                  <img src={catTwo} alt="cat" />
+                </div>
+
+                {!rafTaken && (
+                  <div
+                    className={`kitchen-item raf ${rafTaken ? 'taken' : ''}`}
+                    onClick={handleRafClick}
+                    style={{ cursor: rafTaken ? 'default' : 'pointer' }}
+                  >
+                    <img src={coffee} alt="Кофе" />
+                  </div>
+                )}
+              </>
+            )}
+
+            {showArtifact && (
+              <ArtifactNotification
+                artifactName="Сердце в укропе"
+                artifactIcon={dill}
+                onComplete={handleArtifactComplete}
+              />
+            )}
+          </div>
+        </SleepinessVignette>
+      </GameLayout >
+    </LoadingScreen>
   )
 }
 

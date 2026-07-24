@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react'
 import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
+import { LoadingScreen } from '../LoadingScreen'
 import './Playground.css'
 
 import bg from '@/assets/backgrounds/playground/playground-1.png'
@@ -50,6 +51,8 @@ function Playground() {
 
   const useChokopaiRef = useRef(useChokopai)
   const chokopaiRef = useRef(chokopai)
+
+  const images = [bg, bgTwo, playerStand, playerLeft, playerRight, baby, pill, cat, toy]
 
   useEffect(() => {
     playerXRef.current = playerX
@@ -421,123 +424,125 @@ function Playground() {
   const backgrounds = [bg, bgTwo]
 
   return (
-    <GameLayout
-      dialogText={dialogText || ''}
-      showNextBtn={isShowHextBtn}
-      onNext={handleContinue}
-    >
-      <div className="playground">
-        <img
-          rel="preload"
-          className="background"
-          src={backgrounds[currentScene]}
-          alt="Playground background"
-        />
-
-        <div
-          className={`player-one ${isMoving ? 'moving' : ''}`}
-          style={{ left: `${playerX}%` }}
-        >
+    <LoadingScreen images={images}>
+      <GameLayout
+        dialogText={dialogText || ''}
+        showNextBtn={isShowHextBtn}
+        onNext={handleContinue}
+      >
+        <div className="playground">
           <img
-            src={getPlayerSprite(isMoving, isMovingLeft)}
-            alt="Вампир в кимоно"
-            className="player-sprite-one"
-            style={{
-              transform: !isMovingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-            }}
+            rel="preload"
+            className="background"
+            src={backgrounds[currentScene]}
+            alt="Playground background"
           />
-        </div>
 
-        <div className="clock-wrapper">
-          <div className={`clock-display ${currentHour === 17 ? 'seventeen' : ''}`}>
-            <span className="clock-hours">
-              {String(currentHour).padStart(2, '0')}:00
-            </span>
-          </div>
-
-          <div className="round-lives">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className={`life-bar ${index < roundLives ? 'active' : 'lost'}`}
-              />
-            ))}
-          </div>
-
-          <div className="progress-label">
-            до конца тура {gameTime} сек
-          </div>
-        </div>
-
-        {showRoundEnd && (
-          <div className="round-end-overlay">
-            <div className="round-end-message">
-              {roundLives === 0 ? 'Раунд проигран!' : 'Время вышло!'}
-              <button
-                className="round-end-sub"
-                onClick={resetRound}
-              >
-                [ ПЕРЕЗАПУСТИТЬ РАУНД ]
-              </button>
-            </div>
-          </div>
-        )}
-
-        {children.map((child) => (
           <div
-            key={child.id}
-            className="child"
-            style={{
-              left: `${child.x}%`,
-              top: `${child.y}%`,
-            }}
+            className={`player-one ${isMoving ? 'moving' : ''}`}
+            style={{ left: `${playerX}%` }}
           >
             <img
-              src={baby}
-              alt="Ребёнок"
+              src={getPlayerSprite(isMoving, isMovingLeft)}
+              alt="Вампир в кимоно"
+              className="player-sprite-one"
+              style={{
+                transform: !isMovingLeft ? 'scaleX(-1)' : 'scaleX(1)',
+              }}
             />
           </div>
-        ))}
 
-        {tablet && tablet.active && !tabletCaught && (
-          <div
-            className="tablet"
-            style={{
-              left: `${tablet.x}%`,
-              top: `${tablet.y}%`,
-            }}
-          >
-            <span className="tablet-icon">
-              <img
-                src={pill}
-                alt="Таблетка"
-              />
-            </span>
-            <span className="tablet-hint">[E]</span>
+          <div className="clock-wrapper">
+            <div className={`clock-display ${currentHour === 17 ? 'seventeen' : ''}`}>
+              <span className="clock-hours">
+                {String(currentHour).padStart(2, '0')}:00
+              </span>
+            </div>
+
+            <div className="round-lives">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={index}
+                  className={`life-bar ${index < roundLives ? 'active' : 'lost'}`}
+                />
+              ))}
+            </div>
+
+            <div className="progress-label">
+              до конца тура {gameTime} сек
+            </div>
           </div>
-        )}
 
-        {currentScene === 1 && (
-          <img
-            className='cat-lie'
-            src={cat}
-            alt="кошка"
-          />
-        )}
+          {showRoundEnd && (
+            <div className="round-end-overlay">
+              <div className="round-end-message">
+                {roundLives === 0 ? 'Раунд проигран!' : 'Время вышло!'}
+                <button
+                  className="round-end-sub"
+                  onClick={resetRound}
+                >
+                  [ ПЕРЕЗАПУСТИТЬ РАУНД ]
+                </button>
+              </div>
+            </div>
+          )}
 
-        <div className="controls-hint">
-          ← → или A D - движение
+          {children.map((child) => (
+            <div
+              key={child.id}
+              className="child"
+              style={{
+                left: `${child.x}%`,
+                top: `${child.y}%`,
+              }}
+            >
+              <img
+                src={baby}
+                alt="Ребёнок"
+              />
+            </div>
+          ))}
+
+          {tablet && tablet.active && !tabletCaught && (
+            <div
+              className="tablet"
+              style={{
+                left: `${tablet.x}%`,
+                top: `${tablet.y}%`,
+              }}
+            >
+              <span className="tablet-icon">
+                <img
+                  src={pill}
+                  alt="Таблетка"
+                />
+              </span>
+              <span className="tablet-hint">[E]</span>
+            </div>
+          )}
+
+          {currentScene === 1 && (
+            <img
+              className='cat-lie'
+              src={cat}
+              alt="кошка"
+            />
+          )}
+
+          <div className="controls-hint">
+            ← → или A D - движение
+          </div>
+
+          {showArtifact && (
+            <ArtifactNotification
+              artifactName="Погремушка забытого детства"
+              artifactIcon={toy}
+              onComplete={handleArtifactComplete}
+            />
+          )}
         </div>
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Погремушка забытого детства"
-            artifactIcon={toy}
-            onComplete={handleArtifactComplete}
-          />
-        )}
-      </div>
-    </GameLayout>
+      </GameLayout>
+    </LoadingScreen >
   )
 }
 

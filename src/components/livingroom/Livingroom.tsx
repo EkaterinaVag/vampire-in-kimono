@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
+import { LoadingScreen } from '../LoadingScreen'
 import './Livingroom.css'
 
 import bg from '@/assets/backgrounds/livingroom/livingroom.png'
@@ -37,6 +38,8 @@ function Livingroom() {
   const timerRef = useRef<number | null>(null)
   const moveIntervalRef = useRef<number | null>(null)
   const dialogTimeoutRef = useRef<number | null>(null)
+
+  const images = [bg, timer, catSeven, cat, furr]
 
   const runningPhrases = [
     '«Я - тигр! Я - лев! Я - тот, кто шуршит!»',
@@ -186,72 +189,74 @@ function Livingroom() {
   }
 
   return (
-    <GameLayout
-      dialogText={dialogText || 'Кот в пакете! Нажми на него 3 раза за 10 секунд!'}
-      showNextBtn={isShowNextBtn}
-      onNext={handleContinue}
-    >
-      <div className="livingroom">
-        <img
-          rel="preload"
-          className="background"
-          src={bg}
-          alt="Livingroom background"
-        />
-
-        {isTimerActive && !isBagCaught && !isRoundFailed && (
-          <div className="timer">
-            <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
-            <span className="timer-text">{timeLeft}</span>
-          </div>
-        )}
-
-        {!isBagCaught && !isRoundFailed && (
-          <div
-            className="bag-sprite"
-            style={{ left: `${bagX}%`, top: `${bagY}%` }}
-            onClick={handleBagClick}
-          >
-            <img
-              src={catSeven}
-              alt="Пакет с котом"
-              className="bag-image"
-            />
-            <span className="click-hint">[КЛИКНИ]</span>
-          </div>
-        )}
-
-        {isBagCaught && (
-          <div className="cat-saved">
-            <img
-              src={cat}
-              alt="Спасённый кот"
-              className="cat-happy"
-            />
-          </div>
-        )}
-
-        {isRoundFailed && (
-          <div className="round-fail-overlay">
-            <div className="round-fail-message">
-              <span className="fail-icon">💥</span>
-              <span className="fail-title">Кот врезался в стену!</span>
-              <button className="fail-btn" onClick={resetRound}>
-                [ ПЕРЕЗАПУСТИТЬ ]
-              </button>
-            </div>
-          </div>
-        )}
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Клок шерсти"
-            artifactIcon={furr}
-            onComplete={handleArtifactComplete}
+    <LoadingScreen images={images}>
+      <GameLayout
+        dialogText={dialogText || 'Кот в пакете! Нажми на него 3 раза за 10 секунд!'}
+        showNextBtn={isShowNextBtn}
+        onNext={handleContinue}
+      >
+        <div className="livingroom">
+          <img
+            rel="preload"
+            className="background"
+            src={bg}
+            alt="Livingroom background"
           />
-        )}
-      </div>
-    </GameLayout>
+
+          {isTimerActive && !isBagCaught && !isRoundFailed && (
+            <div className="timer">
+              <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
+              <span className="timer-text">{timeLeft}</span>
+            </div>
+          )}
+
+          {!isBagCaught && !isRoundFailed && (
+            <div
+              className="bag-sprite"
+              style={{ left: `${bagX}%`, top: `${bagY}%` }}
+              onClick={handleBagClick}
+            >
+              <img
+                src={catSeven}
+                alt="Пакет с котом"
+                className="bag-image"
+              />
+              <span className="click-hint">[КЛИКНИ]</span>
+            </div>
+          )}
+
+          {isBagCaught && (
+            <div className="cat-saved">
+              <img
+                src={cat}
+                alt="Спасённый кот"
+                className="cat-happy"
+              />
+            </div>
+          )}
+
+          {isRoundFailed && (
+            <div className="round-fail-overlay">
+              <div className="round-fail-message">
+                <span className="fail-icon">💥</span>
+                <span className="fail-title">Кот врезался в стену!</span>
+                <button className="fail-btn" onClick={resetRound}>
+                  [ ПЕРЕЗАПУСТИТЬ ]
+                </button>
+              </div>
+            </div>
+          )}
+
+          {showArtifact && (
+            <ArtifactNotification
+              artifactName="Клок шерсти"
+              artifactIcon={furr}
+              onComplete={handleArtifactComplete}
+            />
+          )}
+        </div>
+      </GameLayout>
+    </LoadingScreen>
   )
 }
 
