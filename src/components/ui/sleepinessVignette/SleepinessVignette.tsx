@@ -2,8 +2,6 @@ import { useEffect, useState, useRef, useMemo, useCallback } from 'react'
 import { useGameStore } from '@store/gameStore'
 import './SleepinessVignette.css'
 
-// TODO: порефакторить ошибка. пока работает
-
 interface SleepinessVignetteProps {
   children?: React.ReactNode
   idleThreshold?: number // секунд бездействия до начисления сонливости (по умолчанию 5)
@@ -19,29 +17,23 @@ export function SleepinessVignette({
 }: SleepinessVignetteProps) {
   const { effects, addSleepiness, resetSleepiness } = useGameStore()
   const isRafUsed = useGameStore(state => state.progress.kitchen_rafUsed)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [idleTime, setIdleTime] = useState(0)
+
+  const [, forceUpdate] = useState({})
 
   const inactivityIntervalRef = useRef<number | null>(null)
   const isMountedRef = useRef(true)
-  // eslint-disable-next-line react-hooks/purity
-  const lastInteractionRef = useRef(Date.now())
+  const idleTimeRef = useRef(0)
 
-  // --- Функция для сброса таймера бездействия ---
-  const resetIdleTimer = useCallback(() => {
-    setIdleTime(0)
-    lastInteractionRef.current = Date.now()
-  }, [])
-
-  // --- Функция для остановки таймера ---
+  // Функция для остановки таймера
   const stopIdleTimer = useCallback(() => {
     if (inactivityIntervalRef.current) {
       clearInterval(inactivityIntervalRef.current)
       inactivityIntervalRef.current = null
     }
+    idleTimeRef.current = 0
   }, [])
 
-  // --- Функция для запуска таймера ---
+  // Функция для запуска таймера
   const startIdleTimer = useCallback(() => {
     if (isRafUsed) {
       stopIdleTimer()
@@ -53,39 +45,20 @@ export function SleepinessVignette({
     inactivityIntervalRef.current = setInterval(() => {
       if (!isMountedRef.current) return
 
-      const now = Date.now()
-      // const timeSinceLastInteraction = (now - lastInteractionRef.current) / 1000 // в секундах
+      idleTimeRef.current += checkInterval / 1000
 
-      setIdleTime(prev => {
-        const newTime = prev + (checkInterval / 1000)
-
-        // Проверяем превышение порога бездействия
-        if (newTime >= idleThreshold) {
-          // Добавляем сонливость
-          addSleepiness(idleIncrement)
-          setIdleTime(0) // Сбрасываем счетчик
-          lastInteractionRef.current = now // Обновляем время последнего взаимодействия
-          return 0
-        }
-
-        return newTime
-      })
+      if (idleTimeRef.current >= idleThreshold) {
+        addSleepiness(idleIncrement)
+        idleTimeRef.current = 0
+        forceUpdate({})
+      }
     }, checkInterval)
-  }, [checkInterval, idleThreshold, idleIncrement, addSleepiness, stopIdleTimer])
+  }, [checkInterval, idleThreshold, idleIncrement, addSleepiness, stopIdleTimer, isRafUsed])
 
-  // --- Отслеживаем взаимодействия пользователя ---
-  useEffect(() => {
-    const handleInteraction = () => {
-      resetIdleTimer()
-    }
-    handleInteraction()
-  }, [resetIdleTimer])
-
-  // --- Управление таймером ---
+  // Управление таймером
   useEffect(() => {
     isMountedRef.current = true
-    // Инициализируем время последнего взаимодействия здесь, вне рендера
-    lastInteractionRef.current = Date.now()
+    idleTimeRef.current = 0
     startIdleTimer()
 
     return () => {
@@ -94,19 +67,18 @@ export function SleepinessVignette({
     }
   }, [startIdleTimer, stopIdleTimer])
 
-  // --- Перезапускаем таймер при изменении isRafUsed ---
   useEffect(() => {
     if (isRafUsed) {
-      // Если RAF выпит - останавливаем таймер и сбрасываем сонливость
       stopIdleTimer()
       resetSleepiness()
+      idleTimeRef.current = 0
     } else {
-      // Если RAF не выпит - запускаем таймер заново
+      idleTimeRef.current = 0
       startIdleTimer()
     }
   }, [isRafUsed, stopIdleTimer, startIdleTimer, resetSleepiness])
 
-  // --- Обновление прозрачности виньетки ---
+  // Обновление прозрачности виньетки
   const getSleepinessLevelClass = useMemo(() => {
     const value = effects.sleepiness
     if (value >= 80) return 'level-critical'
