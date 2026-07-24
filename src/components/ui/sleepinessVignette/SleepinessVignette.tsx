@@ -19,10 +19,12 @@ export function SleepinessVignette({
 }: SleepinessVignetteProps) {
   const { effects, addSleepiness, resetSleepiness } = useGameStore()
   const isRafUsed = useGameStore(state => state.progress.kitchen_rafUsed)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [idleTime, setIdleTime] = useState(0)
 
   const inactivityIntervalRef = useRef<number | null>(null)
   const isMountedRef = useRef(true)
+  // eslint-disable-next-line react-hooks/purity
   const lastInteractionRef = useRef(Date.now())
 
   // --- Функция для сброса таймера бездействия ---
