@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { flushSync } from 'react-dom'
 import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
@@ -169,29 +170,42 @@ function Bridge() {
       if (e.key === 'ArrowRight' || e.key === 'd') {
         setIsMoving(true)
         setIsMovingLeft(false)
-        setPlayerX((prev) => {
-          const speed = isShiftHeld ? 0.5 : 1.5
-          const newX = Math.min(prev + speed, 95)
 
-          if (newX >= 85 && currentScene === 0) {
-            setCurrentScene(1)
-            setPlayerX(10)
-          }
-          return newX
+        flushSync(() => {
+          setPlayerX((prev) => {
+            const speed = isShiftHeld ? 0.5 : 1.5
+            const newX = Math.min(prev + speed, 95)
+
+            if (newX >= 85 && currentScene === 0) {
+              setCurrentScene(1)
+              flushSync(() => {
+                setPlayerX(10)
+              })
+              return newX
+            }
+            return newX
+          })
         })
       }
 
       if (e.key === 'ArrowLeft' || e.key === 'a') {
         setIsMoving(true)
         setIsMovingLeft(true)
-        setPlayerX((prev) => {
-          const speed = isShiftHeld ? 0.5 : 1.5
-          const newX = Math.max(prev - speed, 5)
-          if (newX <= 10 && currentScene === 1) {
-            setCurrentScene(0)
-            setPlayerX(90)
-          }
-          return newX
+
+        flushSync(() => {
+          setPlayerX((prev) => {
+            const speed = isShiftHeld ? 0.5 : 1.5
+            const newX = Math.max(prev - speed, 5)
+
+            if (newX <= 10 && currentScene === 1) {
+              setCurrentScene(0)
+              flushSync(() => {
+                setPlayerX(85)
+              })
+              return newX
+            }
+            return newX
+          })
         })
       }
     }
@@ -217,7 +231,7 @@ function Bridge() {
 
   // ПРОВЕРКА ПРОХОЖДЕНИЯ МОСТА
   useEffect(() => {
-    if (currentScene === 1 && playerX >= 80 && !isPassed && !isFalling) {
+    if (currentScene === 1 && playerX >= 90 && !isPassed && !isFalling) {
       setDialogText(
         runningTimeRef.current > 0
           ? 'Ты прошёл, но бежал. Мост мог рухнуть. В следующий раз иди тихо.'
