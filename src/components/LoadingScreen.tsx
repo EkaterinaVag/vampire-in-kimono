@@ -10,6 +10,7 @@ interface LoadingScreenProps {
 export function LoadingScreen({ children, images, minLoadingTime = 1000 }: LoadingScreenProps) {
     const [isLoading, setIsLoading] = useState(true)
     const [progress, setProgress] = useState(0)
+    const [showChildren, setShowChildren] = useState(false)
 
     const startTimeRef = useRef<number>(0)
     const isMountedRef = useRef(true)
@@ -24,7 +25,10 @@ export function LoadingScreen({ children, images, minLoadingTime = 1000 }: Loadi
         // Если нет изображений - показываем контент
         if (totalImages === 0) {
             setTimeout(() => {
-                if (isMountedRef.current) setIsLoading(false)
+                if (isMountedRef.current) {
+                    setIsLoading(false)
+                    setShowChildren(true)
+                }
             }, 0)
             return
         }
@@ -63,6 +67,7 @@ export function LoadingScreen({ children, images, minLoadingTime = 1000 }: Loadi
             const timer = setTimeout(() => {
                 if (isMountedRef.current) {
                     setIsLoading(false)
+                    setShowChildren(true)
                 }
             }, remaining)
 
@@ -80,7 +85,6 @@ export function LoadingScreen({ children, images, minLoadingTime = 1000 }: Loadi
     if (isLoading) {
         return (
             <div className="loading-screen">
-                {/* Декоративные частицы */}
                 <div className="particle"></div>
                 <div className="particle"></div>
                 <div className="particle"></div>
@@ -109,5 +113,5 @@ export function LoadingScreen({ children, images, minLoadingTime = 1000 }: Loadi
         )
     }
 
-    return <>{children}</>
+    return showChildren ? <>{children}</> : null
 }
