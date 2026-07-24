@@ -297,7 +297,7 @@ function Bridge() {
           className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''}`}
           style={{
             left: `${playerX}%`,
-            bottom: `${isFalling ? 35 - playerY * 0.15 : 35}%`,
+            bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
             transform: isFalling
               ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.3, 1 - playerY / 200)})`
               : 'none',

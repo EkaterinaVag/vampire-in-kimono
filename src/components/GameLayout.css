@@ -13,7 +13,7 @@
   bottom: 30px;
   left: 10px;
   z-index: 2;
-  width: 40%;
+  width: 540px;
   max-width: 700px;
 }
 
@@ -22,7 +22,6 @@
   height: auto;
   display: block;
   transform: scale(-1, 1);
-  /* filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); */
 }
 
 .dialog-text {
@@ -33,18 +32,12 @@
   width: 85%;
   padding: 60px 50px 20px 20px;
   font-family: 'Courier New', monospace;
-  font-size: 1.1rem;
+  font-size: 0.8rem;
   line-height: 1.6;
   color: #242424;
   text-align: center;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
   pointer-events: none;
-}
-
-@media (max-width: 1600px) {
-  .dialog-text {
-    font-size: 0.8rem;
-  }
 }
 
 .continue-btn {
