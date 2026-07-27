@@ -6,6 +6,7 @@ import Kitchen from './components/kitchen/Kitchen'
 import Bridge from './components/bridge/Bridge'
 import Livingroom from './components/livingroom/Livingroom'
 import MoonField from './components/moonField/MoonField'
+import DesktopOnly from './components/ui/desktopOnly/DesktopOnly'
 
 function App() {
   const currentLocation = useGameStore((state) => state.currentLocation)
@@ -13,7 +14,7 @@ function App() {
   console.log(currentLocation)
 
   return (
-    <>
+    <DesktopOnly>
       {currentLocation === 'prologue' && <Prologue />}
       {currentLocation === 'hallway' && <Hallway />}
       {currentLocation === 'playground' && <Playground />}
@@ -21,7 +22,7 @@ function App() {
       {currentLocation === 'bridge' && <Bridge />}
       {currentLocation === 'livingroom' && <Livingroom />}
       {currentLocation === 'moon_field' && <MoonField />}
-    </>
+    </DesktopOnly>
   )
 }
 
