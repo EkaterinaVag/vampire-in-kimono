@@ -11,6 +11,7 @@ import catSeven from '@/assets/sprites/cat/cat-7.png'
 import cat from '@/assets/sprites/cat/cat-8.png'
 import furr from '@/assets/items/artifacts/furr.png'
 import bag from '@/assets/sprites/bag.png'
+import { TimerDisplay } from '../ui/timerDisplay/TimerDisplay'
 
 function LivingroomContent() {
   const {
@@ -201,10 +202,7 @@ function LivingroomContent() {
         />
 
         {isTimerActive && !isBagCaught && !isRoundFailed && (
-          <div className="timer">
-            <img src={timer} loading="eager" alt="Таймер" className="timer-icon" />
-            <span className="timer-text">{timeLeft}</span>
-          </div>
+          <TimerDisplay timeLeft={timeLeft} icon={timer} />
         )}
 
         {!isBagCaught && !isRoundFailed && (
