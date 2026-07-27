@@ -212,11 +212,6 @@ function LivingroomContent() {
             onClick={handleBagClick}
           >
             <img
-              src={catSeven}
-              alt="кот"
-              className="bag-image"
-            />
-            <img
               src={bag}
               alt="Пакет"
               className="bag-image"

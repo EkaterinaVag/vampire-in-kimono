@@ -8,7 +8,7 @@ const getInitialState = (): Omit<GameStore,
   'addItem' | 'removeItem' | 'hasItem' | 'useChokopai' |
   'addChokopai' | 'applyFurClump' | 'consumeRaf' |
   'addSleepiness' | 'resetSleepiness' | 'obtainArtifact' |
-  'hasArtifact' | 'reset'
+  'hasArtifact' | 'reset' | 'resetChokopai'
 > => ({
   currentLocation: 'prologue' as LocationId,
   prologueCompleted: false,
@@ -92,6 +92,19 @@ export const useGameStore = create<GameStore>()(
           return state
         })
       },
+      resetChokopai: () => {
+        set((state) => {
+          if (state.chokopai.max === 3) {
+            state.chokopai.current = 3
+          }
+
+          if (state.chokopai.max === 4) {
+            state.chokopai.current = 4
+          }
+          return state
+        })
+      },
+
 
       addSleepiness: (value) => {
         set((state) => {

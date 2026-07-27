@@ -3,6 +3,8 @@ import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import { LoadingScreen } from '../LoadingScreen'
+import usePlayerMovement from '@/hooks/usePlayerMovement'
+import getPlayerSprite from '@/utils/playerSprites'
 import './Playground.css'
 
 import bg from '@/assets/backgrounds/playground/playground-1.png'
@@ -15,19 +17,22 @@ import pill from '@/assets/sprites/children/pill.png'
 import cat from '@/assets/sprites/cat/cat-5.png'
 import toy from '@/assets/items/artifacts/toy.png'
 
-function PlaygroundContent() {
-  const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai } = useGameStore()
 
-  const [currentScene, setCurrentScene] = useState(0)
-  const [playerX, setPlayerX] = useState(20)
-  const [isMoving, setIsMoving] = useState(false)
-  const [isMovingLeft, setIsMovingLeft] = useState(false)
+function PlaygroundContent() {
+  const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai, resetChokopai } = useGameStore()
+
+  const {
+    playerX,
+    isMoving,
+    isMovingLeft,
+    currentScene,
+    resetMovement
+  } = usePlayerMovement()
 
   const [dialogText, setDialogText] = useState('')
   const [isShowHextBtn, setIsShowHextBtn] = useState(false)
   const [showArtifact, setShowArtifact] = useState(false)
 
-  const [roundLives, setRoundLives] = useState(3)
   const [isRoundActive, setIsRoundActive] = useState(true)
   const [showRoundEnd, setShowRoundEnd] = useState(false)
 
@@ -87,7 +92,6 @@ function PlaygroundContent() {
       collisionCooldownRef.current = null
     }
 
-    setRoundLives(3)
     setIsRoundActive(true)
     setShowRoundEnd(false)
     setGameTime(180)
@@ -96,6 +100,8 @@ function PlaygroundContent() {
     setTablet(null)
     setChildren([])
     setDialogText('')
+    resetChokopai()
+    resetMovement()
     tabletSpawnedRef.current = false
   }
 
@@ -103,9 +109,7 @@ function PlaygroundContent() {
     '«Этот мир слишком шумный. Я предпочитаю пакеты. Они шуршат. И в них можно спрятаться от детей. Дети - это страшно. Особенно когда они бегают и орут.»',
     '«Падающие дети - это всегда смешно»',
   ]
-
   const catPhraseIndexRef = useRef(0)
-  const isTransitioningRef = useRef(false)
 
   useEffect(() => {
     if (currentScene === 1 && isRoundActive && !tabletCaught && !showRoundEnd) {
@@ -115,7 +119,7 @@ function PlaygroundContent() {
     } else {
       setDialogText('')
     }
-  }, [currentScene])
+  }, [currentScene, isRoundActive, tabletCaught, showRoundEnd])
 
   const handleChildCollision = () => {
     if (!isRoundActive || tabletCaught) return
@@ -125,38 +129,53 @@ function PlaygroundContent() {
       collisionCooldownRef.current = null
     }, 1000)
 
-    setRoundLives((prev) => {
-      const newLives = prev - 1
+    const currentChokopai = chokopaiRef.current?.current || 0
 
-      if (newLives <= 0) {
-        setIsRoundActive(false)
-        setShowRoundEnd(true)
-        setDialogText('Раунд проигран! Дети победили! Теряешь чокопай.')
+    // Если есть хоть один чокопай - тратим
+    if (currentChokopai > 0) {
+      useChokopaiRef.current()
+      const remaining = currentChokopai - 1
+      setDialogText(`Ой! Ты потерял чокопай. Осталось: ${remaining}`)
 
-        setIsTimeStopped(true)
-        setChildren([])
+      // Если после траты чокопаев не осталось - перезапускаем раунд
+      if (remaining === 0) {
+        setTimeout(() => {
+          setIsRoundActive(false)
+          setShowRoundEnd(true)
+          setDialogText('Чокопаи закончились! Раунд перезапущен!')
 
-        if (chokopaiRef.current && chokopaiRef.current.current > 0) {
-          useChokopaiRef.current()
-        }
+          // Останавливаем всё
+          setIsTimeStopped(true)
+          setChildren([])
 
-        if (childSpawnRef.current) {
-          clearInterval(childSpawnRef.current)
-          childSpawnRef.current = null
-        }
-        if (fallIntervalRef.current) {
-          clearInterval(fallIntervalRef.current)
-          fallIntervalRef.current = null
-        }
-
-        return 0
+          if (childSpawnRef.current) {
+            clearInterval(childSpawnRef.current)
+            childSpawnRef.current = null
+          }
+          if (fallIntervalRef.current) {
+            clearInterval(fallIntervalRef.current)
+            fallIntervalRef.current = null
+          }
+        }, 500)
       }
+    } else {
+      // Чокопаев нет - сразу перезапуск
+      setIsRoundActive(false)
+      setShowRoundEnd(true)
+      setDialogText('Чокопаи закончились! Раунд перезапущен!')
 
-      setDialogText(`Осторожно! Осталось ${newLives} жизней!`)
-      setTimeout(() => setDialogText(''), 1500)
+      setIsTimeStopped(true)
+      setChildren([])
 
-      return newLives
-    })
+      if (childSpawnRef.current) {
+        clearInterval(childSpawnRef.current)
+        childSpawnRef.current = null
+      }
+      if (fallIntervalRef.current) {
+        clearInterval(fallIntervalRef.current)
+        fallIntervalRef.current = null
+      }
+    }
   }
 
   // таймер
@@ -169,11 +188,6 @@ function PlaygroundContent() {
           setIsRoundActive(false)
           setShowRoundEnd(true)
           setDialogText('Время вышло! Раунд перезапущен!')
-
-          setTimeout(() => {
-            setShowRoundEnd(false)
-            resetRound()
-          }, 3000)
 
           clearInterval(timer)
           return 0
@@ -364,57 +378,6 @@ function PlaygroundContent() {
   // движение
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isRoundActive) return
-      if (isTransitioningRef.current) return
-
-      if (e.key === 'ArrowRight' || e.key === 'd') {
-        e.preventDefault()
-        setIsMoving(true)
-        setIsMovingLeft(false)
-
-        setPlayerX((prev) => {
-          const newX = Math.min(prev + 2, 95)
-
-          if (newX >= 90 && currentScene === 0 && !isTransitioningRef.current) {
-            isTransitioningRef.current = true
-
-            setCurrentScene(1)
-            setPlayerX(5)
-
-            setTimeout(() => {
-              isTransitioningRef.current = false
-            }, 100)
-
-            return 5
-          }
-          return newX
-        })
-      }
-
-      if (e.key === 'ArrowLeft' || e.key === 'a') {
-        e.preventDefault()
-        setIsMoving(true)
-        setIsMovingLeft(true)
-
-        setPlayerX((prev) => {
-          const newX = Math.max(prev - 2, 5)
-
-          if (newX <= 10 && currentScene === 1 && !isTransitioningRef.current) {
-            isTransitioningRef.current = true
-
-            setCurrentScene(0)
-            setPlayerX(95)
-
-            setTimeout(() => {
-              isTransitioningRef.current = false
-            }, 100)
-
-            return 95
-          }
-          return newX
-        })
-      }
-
       if ((e.key === 'e' || e.key === 'E') && tablet && tablet.active && !tabletCaught && isRoundActive) {
         const playerPos = playerX / 100 * window.innerWidth
         const tabletPos = tablet.x / 100 * window.innerWidth
@@ -424,20 +387,9 @@ function PlaygroundContent() {
       }
     }
 
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'ArrowLeft' || e.key === 'a') {
-        setIsMoving(false)
-      }
-    }
-
     window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [currentScene, isRoundActive, tablet, tabletCaught, playerX])
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [tablet, tabletCaught, isRoundActive, playerX])
 
   const handleContinue = () => {
     setLocation('kitchen')
@@ -483,15 +435,6 @@ function PlaygroundContent() {
             </span>
           </div>
 
-          <div className="round-lives">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className={`life-bar ${index < roundLives ? 'active' : 'lost'}`}
-              />
-            ))}
-          </div>
-
           <div className="progress-label">
             до конца тура {gameTime} сек
           </div>
@@ -500,7 +443,7 @@ function PlaygroundContent() {
         {showRoundEnd && (
           <div className="round-end-overlay">
             <div className="round-end-message">
-              {roundLives === 0 ? 'Раунд проигран!' : 'Время вышло!'}
+              {chokopai?.current === 0 ? 'Раунд проигран!' : 'Время вышло!'}
               <button
                 className="round-end-sub"
                 onClick={resetRound}
@@ -567,12 +510,6 @@ function PlaygroundContent() {
       </div>
     </GameLayout>
   )
-}
-
-function getPlayerSprite(isMoving: boolean, isMovingLeft: boolean) {
-  if (!isMoving) return playerStand
-  if (isMovingLeft) return playerLeft
-  return playerRight
 }
 
 function Playground() {

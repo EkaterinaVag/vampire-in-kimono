@@ -23,6 +23,7 @@ function KitchenContent() {
     addItem,
     addSleepiness,
     addChokopai,
+    resetChokopai,
     effects
   } = useGameStore()
 
@@ -66,7 +67,7 @@ function KitchenContent() {
       setDialogText(
         '«Ты серьёзно? Она готовила окрошку для тебя. С любовью. А ты - к крови? Знаешь, что я думаю о вампирах, которые сначала пьют кровь, а потом приходят обниматься? У них изо рта пахнет… прошлым. Ешь окрошку. Ну пожалуйста. Я редко прошу.»'
       )
-      addChokopai()
+      resetChokopai()
       addSleepiness(50)
       setTimeout(() => {
         setDialogText(

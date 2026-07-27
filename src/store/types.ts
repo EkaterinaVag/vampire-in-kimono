@@ -72,6 +72,7 @@ export interface GameStore {
   useChokopai: () => void
   addChokopai: () => void
   applyFurClump: () => void
+  resetChokopai: () => void
 
   consumeRaf: () => void
 

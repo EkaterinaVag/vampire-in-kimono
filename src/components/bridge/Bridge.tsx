@@ -3,6 +3,8 @@ import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import { LoadingScreen } from '../LoadingScreen'
+import getPlayerSprite from '@/utils/playerSprites'
+import usePlayerMovement from '@/hooks/usePlayerMovement'
 import './Bridge.css'
 
 import catSprite from '@/assets/sprites/cat/cat-9.png'
@@ -19,14 +21,10 @@ function BridgeContent() {
     setLocation,
     obtainArtifact,
     useChokopai: chokopaiFunction,
+    resetChokopai,
   } = useGameStore()
 
-  const [currentScene, setCurrentScene] = useState(0)
-  const [playerX, setPlayerX] = useState(40)
   const [playerY, setPlayerY] = useState(0)
-  const [isMoving, setIsMoving] = useState(false)
-  const [isMovingLeft, setIsMovingLeft] = useState(false)
-  const [isShiftHeld, setIsShiftHeld] = useState(false)
   const [isFalling, setIsFalling] = useState(false)
 
   const [dialogText, setDialogText] = useState('')
@@ -38,10 +36,23 @@ function BridgeContent() {
   const [showCracks, setShowCracks] = useState(false)
   const [shakeAmount, setShakeAmount] = useState(0)
 
+  const {
+    playerX,
+    setPlayerX,
+    isMoving,
+    isMovingLeft,
+    currentScene,
+    setCurrentScene,
+    isShiftHeld,
+    resetMovement
+  } = usePlayerMovement({
+    maxX: 95,
+    initialX: 40,
+    isEnabled: !isPassed && !isShowNextBtn && !isFalling,
+  })
+
   const fallAnimationRef = useRef<number | null>(null)
   const runningTimeRef = useRef<number>(0)
-
-  const isTransitioningRef = useRef(false)
 
   // ГЕНЕРАЦИЯ СЛУЧАЙНЫХ ЗНАЧЕНИЙ ДЛЯ ОБЛОМКОВ
   const [debrisPieces] = useState(() => {
@@ -74,6 +85,9 @@ function BridgeContent() {
     setShakeAmount(0)
     setAttempts((prev) => prev + 1)
     setDialogText('')
+
+    resetMovement()
+    resetChokopai()
 
     if (attempts >= 2) {
       const failMessages = [
@@ -156,87 +170,6 @@ function BridgeContent() {
     }
   }, [isMoving, isShiftHeld, isFalling, isPassed])
 
-  // ДВИЖЕНИЕ ИГРОКА
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isPassed || isShowNextBtn || isFalling) return
-      if (isTransitioningRef.current) return
-
-      if (e.key === 'Shift') {
-        setIsShiftHeld(true)
-        return
-      }
-
-      if (e.key === 'ArrowRight' || e.key === 'd') {
-        e.preventDefault()
-        setIsMoving(true)
-        setIsMovingLeft(false)
-
-        setPlayerX((prev) => {
-          const speed = isShiftHeld ? 0.5 : 1.5
-          const newX = Math.min(prev + speed, 95)
-
-          if (newX >= 90 && currentScene === 0 && !isTransitioningRef.current) {
-            isTransitioningRef.current = true
-
-            setCurrentScene(1)
-            setPlayerX(10)
-
-            setTimeout(() => {
-              isTransitioningRef.current = false
-            }, 100)
-
-            return 10
-          }
-          return newX
-        })
-      }
-
-      if (e.key === 'ArrowLeft' || e.key === 'a') {
-        e.preventDefault()
-        setIsMoving(true)
-        setIsMovingLeft(true)
-
-        setPlayerX((prev) => {
-          const speed = isShiftHeld ? 0.5 : 1.5
-          const newX = Math.max(prev - speed, 5)
-
-          if (newX <= 10 && currentScene === 1 && !isTransitioningRef.current) {
-            isTransitioningRef.current = true
-
-            setCurrentScene(0)
-            setPlayerX(80)
-
-            setTimeout(() => {
-              isTransitioningRef.current = false
-            }, 100)
-
-            return 80
-          }
-          return newX
-        })
-      }
-    }
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Shift') {
-        setIsShiftHeld(false)
-        return
-      }
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'ArrowLeft' || e.key === 'a') {
-        setIsMoving(false)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [isShiftHeld, isPassed, isShowNextBtn, currentScene, isFalling])
-
   // ПРОВЕРКА ПРОХОЖДЕНИЯ МОСТА
   useEffect(() => {
     if (currentScene === 1 && playerX >= 85 && !isPassed && !isFalling) {
@@ -246,6 +179,7 @@ function BridgeContent() {
           : 'Молодец! Тихо и аккуратно, как я учил. Вот тебе награда - тихий шаг. Теперь никто тебя не услышит. Ну, кроме меня, конечно. Я всё слышу.'
       )
       setIsPassed(true)
+      resetMovement()
       setShowArtifact(true)
       obtainArtifact('silent_step')
       setProgress('bridge_passed', true)
@@ -386,12 +320,6 @@ function BridgeContent() {
       </div>
     </GameLayout>
   )
-}
-
-function getPlayerSprite(isMoving: boolean, isMovingLeft: boolean) {
-  if (!isMoving) return playerStand
-  if (isMovingLeft) return playerLeft
-  return playerRight
 }
 
 function Bridge() {
