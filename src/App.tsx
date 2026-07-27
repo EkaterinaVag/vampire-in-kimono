@@ -5,7 +5,7 @@ import Playground from './components/playground/Playground'
 import Kitchen from './components/kitchen/Kitchen'
 import Bridge from './components/bridge/Bridge'
 import Livingroom from './components/livingroom/Livingroom'
-import MoonField from './components/moonField/moonField'
+import MoonField from './components/moonField/MoonField'
 
 function App() {
   const currentLocation = useGameStore((state) => state.currentLocation)
