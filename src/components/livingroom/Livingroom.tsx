@@ -10,6 +10,7 @@ import timer from '@/assets/ui/timer-2.png'
 import catSeven from '@/assets/sprites/cat/cat-7.png'
 import cat from '@/assets/sprites/cat/cat-8.png'
 import furr from '@/assets/items/artifacts/furr.png'
+import bag from '@/assets/sprites/bag.png'
 
 function LivingroomContent() {
   const {
@@ -214,7 +215,12 @@ function LivingroomContent() {
           >
             <img
               src={catSeven}
-              alt="Пакет с котом"
+              alt="кот"
+              className="bag-image"
+            />
+            <img
+              src={bag}
+              alt="Пакет"
               className="bag-image"
             />
             <span className="click-hint">[КЛИКНИ]</span>

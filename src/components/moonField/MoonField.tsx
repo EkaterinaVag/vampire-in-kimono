@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useGameStore } from '@store/gameStore'
 import { LoadingScreen } from '../LoadingScreen'
 import { GameLayout } from '../GameLayout'
@@ -6,8 +6,9 @@ import './MoonField.css'
 
 import bg from '@/assets/backgrounds/moon-field/moon.jpg'
 import bush from '@/assets/sprites/bush.png'
-import catOne from '@/assets/sprites/cat/cat-2.png'
-import catHappy from '@/assets/sprites/cat/cat-3.png'
+import catOne from '@/assets/sprites/cat/black-cat-3.png'
+import catTwo from '@/assets/sprites/cat/black-cat.png'
+import catHappy from '@/assets/sprites/cat/black-cat-2.png'
 
 type Action = 'hand' | 'icecream' | 'turn_away' | null
 
@@ -47,7 +48,7 @@ function MoonFieldContent() {
   ]
 
   // РАСЧЕТ ДОВЕРИЯ
-  const calculateTrust = useCallback(() => {
+  const calculateTrust = () => {
     const artifacts: Record<string, number> = {
       wisdom_purr: 20,
       rattle: 20,
@@ -67,28 +68,36 @@ function MoonFieldContent() {
     }
 
     return Math.min(100, trustValue)
-  }, [hasArtifact])
+  }
 
-  const getCatMessage = useCallback((trustValue: number) => {
+  const getCatMessage = (trustValue: number) => {
     if (trustValue === TRUST.HIGH) {
       return 'Ты собрал все артефакты и кошка полностью доверяет тебе! Она вышла из куста. Просто угости её мороженым.'
     }
     return trustValue >= TRUST.MEDIUM
       ? 'Кошка выглядывает из куста. Она готова познакомиться.'
       : 'Кошка прячется в кустах. Тебе нужно заслужить её доверие шаг за шагом.'
-  }, [])
+  }
 
-  const getRequiredSteps = useCallback((trustValue: number): Action[] => {
+  const getRequiredSteps = (trustValue: number): Action[] => {
     if (trustValue === TRUST.HIGH) return ['icecream']
     if (trustValue >= TRUST.MEDIUM) return ['hand', 'icecream']
     return ['hand', 'icecream', 'turn_away']
-  }, [])
+  }
 
   const trustValue = calculateTrust()
   const trustLevel = trustValue === TRUST.HIGH ? 'high'
     : trustValue >= TRUST.MEDIUM ? 'medium'
       : 'low'
   const requiredSteps = getRequiredSteps(trustValue)
+
+  useEffect(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(() => setDialogText(getCatMessage(trustValue)), 0)
+  }, [])
 
   // Завершение последовательности
   const completeSequence = () => {
@@ -249,9 +258,8 @@ function MoonFieldContent() {
     )
   }
 
-  // РЕНДЕР
   return (
-    <GameLayout dialogText={dialogText || getCatMessage(trustValue)}
+    <GameLayout dialogText={dialogText}
       showNextBtn={isShowNextBtn}
       onNext={() => {
         setDialogText('')
@@ -277,7 +285,7 @@ function MoonFieldContent() {
         {/* КОШКА СНАРУЖИ */}
         {(catState === 'outside' || trustLevel === 'high') && !isComplete && (
           <div className="black-cat outside">
-            <img src={catOne} alt="кошка" />
+            <img src={catTwo} alt="кошка" />
           </div>
         )}
 
