@@ -5,6 +5,7 @@ import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotific
 import { LoadingScreen } from '../LoadingScreen'
 import usePlayerMovement from '@/hooks/usePlayerMovement'
 import getPlayerSprite from '@/utils/playerSprites'
+import RoundFailOverlay from '../ui/roundFailOverlay/RoundFailOverlay'
 import './Playground.css'
 
 import bg from '@/assets/backgrounds/playground/playground-1.png'
@@ -16,7 +17,6 @@ import baby from '@/assets/sprites/children/baby-1.png'
 import pill from '@/assets/sprites/children/pill.png'
 import cat from '@/assets/sprites/cat/cat-5.png'
 import toy from '@/assets/items/artifacts/toy.png'
-
 
 function PlaygroundContent() {
   const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai, resetChokopai } = useGameStore()
@@ -441,17 +441,10 @@ function PlaygroundContent() {
         </div>
 
         {showRoundEnd && (
-          <div className="round-end-overlay">
-            <div className="round-end-message">
-              {chokopai?.current === 0 ? 'Раунд проигран!' : 'Время вышло!'}
-              <button
-                className="round-end-sub"
-                onClick={resetRound}
-              >
-                [ ПЕРЕЗАПУСТИТЬ РАУНД ]
-              </button>
-            </div>
-          </div>
+          <RoundFailOverlay
+            title={chokopai?.current === 0 ? 'Раунд проигран!' : 'Время вышло!'}
+            onAction={resetRound}
+          />
         )}
 
         {children.map((child) => (

@@ -3,6 +3,8 @@ import { useGameStore } from '@store/gameStore'
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import { LoadingScreen } from '../LoadingScreen'
+import { TimerDisplay } from '../ui/timerDisplay/TimerDisplay'
+import RoundFailOverlay from '../ui/roundFailOverlay/RoundFailOverlay'
 import './Livingroom.css'
 
 import bg from '@/assets/backgrounds/livingroom/livingroom.png'
@@ -11,7 +13,6 @@ import catSeven from '@/assets/sprites/cat/cat-7.png'
 import cat from '@/assets/sprites/cat/cat-8.png'
 import furr from '@/assets/items/artifacts/furr.png'
 import bag from '@/assets/sprites/bag.png'
-import { TimerDisplay } from '../ui/timerDisplay/TimerDisplay'
 
 function LivingroomContent() {
   const {
@@ -231,15 +232,10 @@ function LivingroomContent() {
         )}
 
         {isRoundFailed && (
-          <div className="round-fail-overlay">
-            <div className="round-fail-message">
-              <span className="fail-icon">💥</span>
-              <span className="fail-title">Кот врезался в стену!</span>
-              <button className="fail-btn" onClick={resetRound}>
-                [ ПЕРЕЗАПУСТИТЬ ]
-              </button>
-            </div>
-          </div>
+          <RoundFailOverlay
+            title="Кот врезался в стену!"
+            onAction={resetRound}
+          />
         )}
 
         {showArtifact && (
