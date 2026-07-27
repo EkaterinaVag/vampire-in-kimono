@@ -29,7 +29,6 @@
   width: auto;
 }
 
-/* --- КОШКА --- */
 .black-cat.behind-bush {
   position: absolute;
   left: 50%;
@@ -38,7 +37,6 @@
   opacity: 0.9;
 }
 
-/* Кошка снаружи */
 .black-cat.outside {
   position: absolute;
   bottom: 160px;
@@ -53,30 +51,12 @@
     opacity: 0;
     transform: translateX(-50%) scale(0.5) translateY(20px);
   }
-
   100% {
     opacity: 1;
     transform: translateX(-50%) scale(1) translateY(0);
   }
 }
 
-@keyframes catWalkOut {
-  0% {
-    opacity: 0.5;
-    transform: translateX(-50%) scale(0.8) translateY(30px);
-  }
-
-  50% {
-    transform: translateX(-50%) scale(1.05) translateY(-10px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateX(-50%) scale(1) translateY(0);
-  }
-}
-
-/* --- СЧАСТЛИВАЯ КОШКА --- */
 .cat-happy {
   position: absolute;
   bottom: 160px;
@@ -100,11 +80,9 @@
     opacity: 0;
     transform: translateX(-50%) scale(0.3) rotate(-10deg);
   }
-
   50% {
     transform: translateX(-50%) scale(1.1) rotate(3deg);
   }
-
   100% {
     opacity: 1;
     transform: translateX(-50%) scale(1) rotate(0deg);
@@ -133,7 +111,6 @@
 .heart:nth-child(2) {
   animation-delay: 0.2s;
 }
-
 .heart:nth-child(3) {
   animation-delay: 0.4s;
 }
@@ -143,7 +120,6 @@
     opacity: 0.5;
     transform: scale(1);
   }
-
   100% {
     opacity: 1;
     transform: scale(1.05);
@@ -155,20 +131,16 @@
     transform: translateY(0) scale(1);
     opacity: 0.5;
   }
-
   100% {
     transform: translateY(-6px) scale(1.1);
     opacity: 1;
   }
 }
 
-/* --- ИНДИКАТОР ДОВЕРИЯ --- */
 .trust-indicator {
   position: fixed;
   top: 35px;
   right: 30px;
-  /* left: 50%; */
-  /* transform: translateX(-50%); */
   z-index: 10;
   display: flex;
   flex-direction: column;
@@ -225,7 +197,6 @@
   letter-spacing: 2px;
 }
 
-/* --- КНОПКИ ДЕЙСТВИЙ --- */
 .action-buttons {
   position: fixed;
   bottom: 120px;
@@ -244,7 +215,6 @@
     opacity: 0;
     transform: translateX(-50%) translateY(20px);
   }
-
   100% {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
@@ -277,7 +247,6 @@
   transform: none !important;
 }
 
-/* --- РУКА --- */
 .hand-btn {
   color: #f5e6f0;
   background: rgba(255, 200, 150, 0.15);
@@ -289,7 +258,6 @@
   box-shadow: 0 0 30px rgba(255, 200, 150, 0.1);
 }
 
-/* --- МОРОЖЕНОЕ --- */
 .icecream-btn {
   color: #f5e6f0;
   background: rgba(255, 215, 0, 0.1);
@@ -301,7 +269,6 @@
   box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
 }
 
-/* --- ОТВЕРНУТЬСЯ --- */
 .turn-btn {
   color: #f5e6f0;
   background: rgba(100, 200, 255, 0.1);
@@ -313,7 +280,6 @@
   box-shadow: 0 0 30px rgba(100, 200, 255, 0.1);
 }
 
-/* --- БЛОКИРОВКА --- */
 .blocked-hint {
   position: fixed;
   bottom: 100px;
@@ -348,7 +314,6 @@
   0% {
     opacity: 0;
   }
-
   100% {
     opacity: 1;
   }
@@ -375,49 +340,45 @@
     transform: scale(0.8) rotate(-2deg);
     opacity: 0;
   }
-
   100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
   }
 }
 
-.final-modal-content {
-  p {
-    font-family: 'Courier New', monospace;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    color: #f5e6f0;
-    text-align: center;
-    margin: 0;
-    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-  }
-
-  button {
-    margin-top: 16px;
-    padding: 12px 32px;
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
-    font-weight: bold;
-    color: #f5e6f0;
-    background: rgba(255, 100, 150, 0.2);
-    border: 2px solid rgba(255, 180, 210, 0.4);
-    border-radius: 40px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    letter-spacing: 1px;
-    backdrop-filter: blur(4px);
-  }
-
-  button:hover {
-    background: rgba(255, 100, 150, 0.35);
-    border-color: #ff99bb;
-    transform: scale(1.04);
-    box-shadow: 0 0 40px rgba(255, 100, 150, 0.15);
-  }
+.final-modal-content p {
+  font-family: 'Courier New', monospace;
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #f5e6f0;
+  text-align: center;
+  margin: 0;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* --- ФИНАЛЬНОЕ ИСПЫТАНИЕ (запятые) --- */
+.final-modal-content button {
+  margin-top: 16px;
+  padding: 12px 32px;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f5e6f0;
+  background: rgba(255, 100, 150, 0.2);
+  border: 2px solid rgba(255, 180, 210, 0.4);
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  backdrop-filter: blur(4px);
+}
+
+.final-modal-content button:hover {
+  background: rgba(255, 100, 150, 0.35);
+  border-color: #ff99bb;
+  transform: scale(1.04);
+  box-shadow: 0 0 40px rgba(255, 100, 150, 0.15);
+}
+
 .final-test-overlay {
   position: fixed;
   top: 0;
@@ -458,7 +419,6 @@
   0% {
     transform: translateY(0) scale(1);
   }
-
   100% {
     transform: translateY(-8px) scale(1.05);
   }
@@ -484,7 +444,6 @@
   opacity: 0.8;
 }
 
-/* --- ПРЕДЛОЖЕНИЕ С ЗАПЯТЫМИ --- */
 .punctuation-sentence {
   display: flex;
   flex-wrap: wrap;
@@ -554,22 +513,18 @@
 }
 
 @keyframes shakeInput {
-
   0%,
   100% {
     transform: translateX(0);
   }
-
   25% {
     transform: translateX(-6px);
   }
-
   75% {
     transform: translateX(6px);
   }
 }
 
-/* --- КНОПКИ ТЕСТА --- */
 .test-submit-btn {
   padding: 12px 36px;
   font-family: 'Courier New', monospace;
@@ -603,7 +558,6 @@
   letter-spacing: 1px;
 }
 
-/* --- СООБЩЕНИЕ ПОСЛЕ ЗАВЕРШЕНИЯ --- */
 .test-message {
   font-family: 'Courier New', monospace;
   font-size: 1.3rem;
@@ -619,9 +573,41 @@
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+.restart-btn {
+  margin-top: 12px;
+  padding: 14px 40px;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #f5e6f0;
+  background: rgba(255, 200, 150, 0.15);
+  border: 2px solid rgba(255, 200, 150, 0.25);
+  border-radius: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  animation: fadeInBtn 0.6s ease forwards;
+}
+
+.restart-btn:hover {
+  background: rgba(255, 200, 150, 0.3);
+  transform: scale(1.04);
+  box-shadow: 0 0 40px rgba(255, 200, 150, 0.1);
+}
+
+@keyframes fadeInBtn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

@@ -34,6 +34,8 @@ function MoonFieldContent() {
   const [testStep, setTestStep] = useState<'intro' | 'complete'>('intro')
   const [punctuationInputs, setPunctuationInputs] = useState<string[]>([])
 
+  const [showRestartBtn, setShowRestartBtn] = useState(false)
+
   const timerRef = useRef<number | null>(null)
 
   const TRUST = { HIGH: 100, MEDIUM: 70 } as const
@@ -96,7 +98,12 @@ function MoonFieldContent() {
       clearTimeout(timerRef.current)
     }
 
-    timerRef.current = setTimeout(() => setDialogText(getCatMessage(trustValue)), 0)
+    timerRef.current = setTimeout(() => {
+      setDialogText(getCatMessage(trustValue))
+      if (trustLevel === 'high') {
+        setCatState('outside')
+      }
+    }, 0)
   }, [])
 
   // Завершение последовательности
@@ -221,6 +228,19 @@ function MoonFieldContent() {
     timerRef.current = setTimeout(() => {
       setTestMessage('Последний артефакт кроется там где отдыхает кошка - найди его!')
     }, 3000)
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(() => {
+      setShowRestartBtn(true)
+    }, 5000)
+  }
+
+  const handleRestart = () => {
+    useGameStore.getState().reset()
+    window.location.reload()
   }
 
   // ОТОБРАЖЕНИЕ КНОПОК
@@ -385,6 +405,12 @@ function MoonFieldContent() {
                 <>
                   <span className="test-icon">✨</span>
                   <p className="test-message">{testMessage}</p>
+
+                  {showRestartBtn && (
+                    <button className="restart-btn" onClick={handleRestart}>
+                      Пройти игру заново
+                    </button>
+                  )}
                 </>
               )}
             </div>

@@ -23,30 +23,16 @@
     }
 
     @keyframes walk {
+
       0%,
       100% {
         transform: translateX(0);
       }
+
       50% {
         transform: translateX(4px);
       }
     }
-  }
-
-  .controls-hint {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 5;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.5);
-    background: rgba(0, 0, 0, 0.3);
-    padding: 8px 16px;
-    border-radius: 20px;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .clock-wrapper {
@@ -142,6 +128,7 @@
         transform: rotate(0deg) scale(0.8);
         opacity: 0.5;
       }
+
       100% {
         transform: rotate(10deg) scale(1);
         opacity: 1;
@@ -163,6 +150,7 @@
       0% {
         transform: translateX(-50%) translateY(0) scale(1);
       }
+
       100% {
         transform: translateX(-50%) translateY(-6px) scale(1.05);
       }
@@ -199,4 +187,20 @@
     width: auto;
     z-index: 1;
   }
+}
+
+.controls-hint {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
