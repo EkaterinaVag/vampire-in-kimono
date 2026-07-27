@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useGameStore } from '@store/gameStore'
 import { LoadingScreen } from '../LoadingScreen'
 import { GameLayout } from '../GameLayout'
@@ -6,384 +6,384 @@ import './MoonField.css'
 
 import bg from '@/assets/backgrounds/moon-field/moon.jpg'
 import bush from '@/assets/sprites/bush.png'
+import catOne from '@/assets/sprites/cat/cat-2.png'
+import catHappy from '@/assets/sprites/cat/cat-3.png'
 
-type FinalStep = 'idle' | 'hand' | 'icecream' | 'turn_away' | 'complete'
-type TestStep = 'idle' | 'showing' | 'question' | 'complete'
+type Action = 'hand' | 'icecream' | 'turn_away' | null
 
 function MoonFieldContent() {
-  const {
-    items,
-    setProgress,
-    setLocation,
-    hasArtifact,
-  } = useGameStore()
+  const { setProgress, setLocation, hasArtifact, removeItem } = useGameStore()
+  const hasIcecream = useGameStore(state => state.progress.kitchen_icecreamTaken)
 
-  // --- СОСТОЯНИЯ ---
   const [dialogText, setDialogText] = useState('')
+  const [isComplete, setIsComplete] = useState(false)
   const [isShowNextBtn, setIsShowNextBtn] = useState(false)
-  const [showFinalTest, setShowFinalTest] = useState(false)
 
-  // Состояния финала
-  const [step, setStep] = useState<FinalStep>('idle')
-  const [catVisible, setCatVisible] = useState(false)
-  const [isCatFed, setIsCatFed] = useState(false)
-  const [trust, setTrust] = useState(0)
+  // Состояние доверия
+  const [catState, setCatState] = useState<'behind_bush' | 'outside'>('behind_bush')
+
+  // Логика последовательности
+  const [currentStep, setCurrentStep] = useState<number>(0)
   const [errorCount, setErrorCount] = useState(0)
-  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [isBlocked, setIsBlocked] = useState(false)
 
-  // Состояния модального окна (финальное испытание)
-  const [testStep, setTestStep] = useState<TestStep>('idle')
-  const [testDialog, setTestDialog] = useState('')
-  const [isTestInputVisible, setIsTestInputVisible] = useState(false)
+  const [showFinalModal, setShowFinalModal] = useState(false)
+  const [showFinalTest, setShowFinalTest] = useState(false)
+  const [testMessage, setTestMessage] = useState('')
+  const [testStep, setTestStep] = useState<'intro' | 'complete'>('intro')
+  const [punctuationInputs, setPunctuationInputs] = useState<string[]>([])
 
   const timerRef = useRef<number | null>(null)
-  const isMountedRef = useRef(true)
 
-  const hasIcecream = items.includes('icecream')
+  const TRUST = { HIGH: 100, MEDIUM: 70 } as const
+  const sentence = 'Шила в мешке да любви в сердце не утаишь.'
+  const words = sentence.split(' ')
+  const paragraphs = [
+    `«Ты не пришёл убивать. Ты пришёл гладить.`,
+    `Чёрная вислоухая кошка мурчит - значит, бессмертие обретено.`,
+    `Она не отдавала тебе своё сердце - она позволила тебе его согреть.`,
+    `Ты стал вампиром не потому, что пьёшь кровь, а потому что теперь у тебя есть ради кого не бояться вечности.`,
+    `Сердце  теперь в твоих руках. Не разбей.»`,
+  ]
 
-  // --- РАСЧЁТ ДОВЕРИЯ ---
-  const calculateTrust = () => {
-    let trustValue = 0
-    const artifacts = {
-      'wisdom_purr': 15,
-      'rattle': 10,
-      'heart_in_dill': 25,
-      'silent_step': 20,
-      'fur_clump': 10
+  // РАСЧЕТ ДОВЕРИЯ
+  const calculateTrust = useCallback(() => {
+    const artifacts: Record<string, number> = {
+      wisdom_purr: 20,
+      rattle: 20,
+      heart_in_dill: 25,
+      silent_step: 20,
+      fur_clump: 15
     }
 
-    Object.entries(artifacts).forEach(([id, value]) => {
-      if (hasArtifact(id)) trustValue += value
-    })
+    let trustValue = Object.entries(artifacts).reduce(
+      (sum, [id, value]) => sum + (hasArtifact(id) ? value : 0),
+      0
+    )
 
-    const allArtifacts = ['wisdom_purr', 'rattle', 'heart_in_dill', 'silent_step', 'fur_clump']
-    const hasAll = allArtifacts.every(id => hasArtifact(id))
-    if (hasAll) trustValue += 10
+    const allArtifacts = Object.keys(artifacts)
+    if (allArtifacts.every(id => hasArtifact(id))) {
+      trustValue += 10
+    }
 
     return Math.min(100, trustValue)
-  }
+  }, [hasArtifact])
 
-  // --- ПОЛУЧЕНИЕ СООБЩЕНИЙ ОТ КОТА ---
-  const getCatMessage = (trustValue: number): string => {
-    if (trustValue >= 80) {
-      return '🐱 «Она чувствует твою доброту. Ты готов. Подойди к кусту.»'
-    } else if (trustValue >= 50) {
-      return '🐱 «Она колеблется. Но ты справишься. Протяни руку медленно.»'
-    } else if (trustValue >= 30) {
-      return '🐱 «Она насторожена. Будь терпелив. Протяни руку и подожди.»'
-    } else {
-      return '🐱 «Она боится. Ты должен заслужить доверие. Начни с малого — протяни руку.»'
+  const getCatMessage = useCallback((trustValue: number) => {
+    if (trustValue === TRUST.HIGH) {
+      return 'Ты собрал все артефакты и кошка полностью доверяет тебе! Она вышла из куста. Просто угости её мороженым.'
     }
-  }
-
-  // --- ИНИЦИАЛИЗАЦИЯ ---
-  useEffect(() => {
-    isMountedRef.current = true
-    return () => {
-      isMountedRef.current = false
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
+    return trustValue >= TRUST.MEDIUM
+      ? 'Кошка выглядывает из куста. Она готова познакомиться.'
+      : 'Кошка прячется в кустах. Тебе нужно заслужить её доверие шаг за шагом.'
   }, [])
 
-  // --- ПРОВЕРКА МОРОЖЕНОГО ---
-  useEffect(() => {
+  const getRequiredSteps = useCallback((trustValue: number): Action[] => {
+    if (trustValue === TRUST.HIGH) return ['icecream']
+    if (trustValue >= TRUST.MEDIUM) return ['hand', 'icecream']
+    return ['hand', 'icecream', 'turn_away']
+  }, [])
+
+  const trustValue = calculateTrust()
+  const trustLevel = trustValue === TRUST.HIGH ? 'high'
+    : trustValue >= TRUST.MEDIUM ? 'medium'
+      : 'low'
+  const requiredSteps = getRequiredSteps(trustValue)
+
+  // Завершение последовательности
+  const completeSequence = () => {
+    setIsComplete(true)
+    setCatState('outside')
+    setProgress('moon_sequenceCompleted', true)
+    setDialogText('Ну вот и всё. Бессмертие получено. Но есть один незавершённый квест. Он очень сложный. С ним не справлялись даже драконы. Готов?')
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(() => setIsShowNextBtn(true), 2000)
+  }
+
+  // Обработка действий
+  const handleAction = (action: Action) => {
+    if (isBlocked || isComplete) return
+
+    // Проверка мороженого
     if (!hasIcecream) {
-      setDialogText('🍦 Ты забыл мороженое! Вернись на кухню и возьми его.')
+      setDialogText('Ты забыл мороженое! Вернись на кухню и возьми его.')
+      setIsBlocked(true)
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
 
       timerRef.current = setTimeout(() => {
-        if (isMountedRef.current) {
-          setProgress('return_from_final', true)
-          setLocation('kitchen')
-        }
-      }, 5000)
+        setProgress('return_from_final', true)
+        setLocation('kitchen')
+      }, 3000)
+      return
+    }
+
+    const expectedAction = requiredSteps[currentStep]
+
+    if (action && action === expectedAction) {
+      // Правильное действие
+      const newStep = currentStep + 1
+      setCurrentStep(newStep)
+
+      // Обновление состояния и диалога
+      const actionUpdates = {
+        hand: () => {
+          if (trustLevel !== 'high') setCatState('outside')
+          return 'Кошка осторожно нюхает твои пальцы... Она начинает привыкать. Теперь она доверяет тебе больше!'
+        },
+        icecream: () => {
+          removeItem('icecream')
+          return 'Кошка с удовольствием ест мороженое! Она мурлычет!'
+        },
+        turn_away: () => 'Кошка выходит из куста и трётся о твою ногу!'
+      }
+
+      setDialogText(actionUpdates[action]())
+
+      if (newStep >= requiredSteps.length) {
+        completeSequence()
+      }
     } else {
-      const trustValue = calculateTrust()
-      setTrust(trustValue)
-      setDialogText(getCatMessage(trustValue))
-    }
+      // Ошибка
+      const newErrorCount = errorCount + 1
+      setErrorCount(newErrorCount)
+      setIsBlocked(true)
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
-    }
-  }, [hasIcecream])
-
-  // --- ОБРАБОТЧИКИ ДЕЙСТВИЙ ---
-  const approachBush = () => {
-    if (!hasIcecream || step !== 'idle' || isTransitioning) return
-
-    setCatVisible(true)
-    setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (isMountedRef.current) {
-        setStep('hand')
-        setDialogText('🐱 «Протяни руку. Не делай резких движений.»')
-        setIsTransitioning(false)
+      const errorMessages: Record<number, string> = {
+        1: 'Неправильно! Попробуй ещё раз.',
+        2: 'Не торопись. Посмотри на кошку и подумай, что ей нужно.',
+        3: 'Подсказка: начни с самого простого - протяни руку.'
       }
-    }, 1500)
-  }
 
-  const extendHand = () => {
-    if (step !== 'hand' || isTransitioning) return
+      setDialogText(
+        newErrorCount < 3
+          ? errorMessages[newErrorCount]
+          : 'Следуй порядку: рука → мороженое → отвернуться.'
+      )
 
-    setDialogText('🐱 Кошка осторожно нюхает твои пальцы...')
-    setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (isMountedRef.current) {
-        setStep('icecream')
-        setDialogText('🐱 Теперь предложи ей угощение. Мороженое.')
-        setIsTransitioning(false)
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
       }
-    }, 1500)
-  }
 
-  const giveIcecream = () => {
-    if (step !== 'icecream' || isTransitioning) return
-
-    setIsCatFed(true)
-    setDialogText('🐱 Она рада мороженному!')
-    setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (isMountedRef.current) {
-        setDialogText('🐱 Кошка довольно мурчит! Она начала тебе доверять!')
-
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setStep('turn_away')
-            setDialogText('🐱 Теперь дай ей пространство. Это последний шаг.')
-            setIsTransitioning(false)
-          }
-        }, 1500)
-      }
-    }, 2000)
-  }
-
-  const turnAway = () => {
-    if (step !== 'turn_away' || isTransitioning) return
-
-    setDialogText('🐱 Кошка выходит из куста...')
-    setIsTransitioning(true)
-
-    setTimeout(() => {
-      if (isMountedRef.current) {
-        setDialogText('🐱 Кошка трётся о твою ногу и громко мурлычет. Ты согрел её сердце!')
-
-        setTimeout(() => {
-          if (isMountedRef.current) {
-            setStep('complete')
-            setProgress('moon_sequenceCompleted', true)
-            setDialogText('🐱 Кошка доверяет тебе полностью. У нее есть для тебя последнее испытание')
-            setIsShowNextBtn(true)
-          }
-        }, 2000)
-      }
-    }, 1500)
-  }
-
-  // --- ОШИБКА (фразы от кота) ---
-  const handleWrongStep = () => {
-    if (isTransitioning) return
-
-    const newErrorCount = errorCount + 1
-    setErrorCount(newErrorCount)
-
-    const errorMessages = {
-      1: '🐱 «Сначала рука. Протяни её медленно и спокойно.»',
-      2: '🐱 «Теперь предложи ей угощение. Положи мороженое перед ней.»',
-      3: '🐱 «Рука → мороженое → отвернуться. Просто следуй порядку, и всё получится.»',
-      4: '🐱 «Не торопись. Доверие не строится за секунду. Попробуй снова.»'
-    }
-
-    const message = errorMessages[newErrorCount as keyof typeof errorMessages] ||
-      '🐱 «Следуй порядку: рука, мороженое, отвернуться.»'
-
-    setDialogText(message)
-
-    if (step === 'idle') setStep('hand')
-  }
-
-  // --- ФИНАЛЬНОЕ ИСПЫТАНИЕ (БЕЗ ПРОВЕРКИ) ---
-  const startFinalTest = () => {
-    setShowFinalTest(true)
-    setTestStep('showing')
-    setTestDialog('📖 «Шила в мешке да любви в сердце не утаишь.»')
-
-    // Показываем кнопку для продолжения
-    setTimeout(() => {
-      setIsTestInputVisible(true)
-    }, 1500)
-  }
-
-  // Показывает следующий шаг испытания
-  const showNextTestStep = () => {
-    if (testStep === 'showing') {
-      setTestDialog('✨ «Запятые не важны! Ты уже покорил меня своей красотой.»')
-      setTestStep('question')
-      setIsTestInputVisible(false)
-
-      setTimeout(() => {
-        setTestDialog('🔍 А теперь найди сюрприз. Он там, где кошка.')
-        setTestStep('complete')
-        setIsTestInputVisible(true)
+      timerRef.current = setTimeout(() => {
+        setIsBlocked(false)
       }, 2000)
     }
   }
 
-  // Завершить испытание
-  const completeTest = () => {
-    setShowFinalTest(false)
-    setProgress('moon_test_completed', true)
-    setLocation('moon_field_final')
-    setDialogText('🌟 Ты нашёл сюрприз! Кошка оставила тебе Лунный камень.')
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+    }
+  }, [])
+
+  // ФИНАЛЬНОЕ ИСПЫТАНИЕ 
+  const startFinalTest = () => {
+    setShowFinalModal(false)
+    setShowFinalTest(true)
+    setTestStep('intro')
+    setTestMessage('Расставь запятые в предложении:')
+
+    setPunctuationInputs(new Array(words.length - 1).fill(''))
   }
 
-  // --- ПЕРЕХОД ---
-  const handleContinue = () => {
-    startFinalTest()
+  const handlePunctuationChange = (index: number, value: string) => {
+    const newInputs = [...punctuationInputs]
+    newInputs[index] = value ? ',' : ''
+    setPunctuationInputs(newInputs)
   }
 
-  // --- ОТОБРАЖЕНИЕ КНОПОК ДЕЙСТВИЙ ---
+  const handlePunctuationSubmit = () => {
+    setTestStep('complete')
+    setTestMessage('Запятые не важны! Ты уже покорил меня своей красотой.')
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current)
+    }
+
+    timerRef.current = setTimeout(() => {
+      setTestMessage('Последний артефакт кроется там где отдыхает кошка - найди его!')
+    }, 3000)
+  }
+
+  // ОТОБРАЖЕНИЕ КНОПОК
   const renderButtons = () => {
-    if (step === 'idle') return null
-    if (step === 'complete') return null
+    if (isBlocked) {
+      return <div className="blocked-hint">Подожди секунду...</div>
+    }
+
+    if (isComplete) return null
+
+    const availableActions = [...new Set(requiredSteps.slice(currentStep))]
+    const buttonConfig = {
+      icecream: { label: 'Мороженое', className: 'icecream-btn' },
+      hand: { label: 'Протянуть руку', className: 'hand-btn' },
+      turn_away: { label: 'Отвернуться', className: 'turn-btn' }
+    }
 
     return (
-      <div className="final-buttons">
-        {step === 'hand' && (
-          <button className="final-btn hand-btn" onClick={extendHand}>
-            ✋ Протянуть руку
-          </button>
-        )}
-        {step === 'icecream' && hasIcecream && (
-          <button className="final-btn icecream-btn" onClick={giveIcecream}>
-            🍦 Предложить мороженое
-          </button>
-        )}
-        {step === 'turn_away' && (
-          <button className="final-btn turn-btn" onClick={turnAway}>
-            🎭 Отвернуться
-          </button>
-        )}
+      <div className="action-buttons">
+        {availableActions.map(action => {
+          if (!action) return null
+
+          const config = buttonConfig[action]
+          return (
+            <button
+              key={action}
+              className={`action-btn ${config.className}`}
+              onClick={() => handleAction(action)}
+            >
+              {config.label}
+            </button>
+          )
+        })}
       </div>
     )
   }
 
-  // --- РЕНДЕР ---
+  // РЕНДЕР
   return (
-    <>
-      <GameLayout
-        dialogText={dialogText}
-        showNextBtn={isShowNextBtn}
-        onNext={handleContinue}
-        nextBtnText="✨ ПЕРЕЙТИ К ИСПЫТАНИЮ ➜"
-      >
-        <div className="moon-field">
-          <img
-            className="background"
-            src={bg}
-            alt="Лунное поле"
-          />
+    <GameLayout dialogText={dialogText || getCatMessage(trustValue)}
+      showNextBtn={isShowNextBtn}
+      onNext={() => {
+        setDialogText('')
+        setShowFinalModal(true)
+        setIsShowNextBtn(false)
+      }}
+      nextBtnText="[ ДА! ]"
+    >
+      <div className="moon-field">
+        <img className="background" src={bg} alt="Лунное поле" />
 
-          {/* КУСТ */}
-          <div
-            className={`bush-container ${catVisible ? 'cat-visible' : ''}`}
-            onClick={approachBush}
-            style={{
-              cursor: step === 'idle' && hasIcecream && !isTransitioning
-                ? 'pointer'
-                : 'default'
-            }}
-          >
-            <img
-              className="bush"
-              src={bush}
-              alt="Куст"
-            />
+        <div className="bush-container">
+          <img className="bush" src={bush} alt="Куст" />
 
-            {step === 'idle' && hasIcecream && (
-              <div className="bush-hint">
-                <span className="pulse">🖱️ Нажми на куст</span>
-              </div>
-            )}
-          </div>
-
-          {/* КОШКА В КУСТЕ */}
-          {catVisible && step !== 'complete' && step !== 'idle' && (
-            <div className={`black-cat ${step === 'complete' ? 'hidden' : ''}`}>
-              <div className="cat-eyes">👀</div>
-              <div className="cat-body"></div>
-              <div className="cat-tail"></div>
+          {/* КОШКА ЗА КУСТОМ */}
+          {catState === 'behind_bush' && !isComplete && (
+            <div className="black-cat behind-bush">
+              <img src={catOne} alt="кошка" />
             </div>
           )}
-
-          {/* СЧАСТЛИВАЯ КОШКА */}
-          {step === 'complete' && (
-            <div className="cat-happy">
-              <div className="cat-happy-body">🐈‍⬛</div>
-              <div className="purr-animation">
-                <span className="purr-text">♡ мур-мур-мур ♡</span>
-                <span className="heart">❤️</span>
-                <span className="heart">💕</span>
-              </div>
-            </div>
-          )}
-
-          {/* КНОПКИ ДЕЙСТВИЙ */}
-          {renderButtons()}
         </div>
-      </GameLayout>
 
-      {/* ФИНАЛЬНОЕ ИСПЫТАНИЕ */}
-      {showFinalTest && (
-        <div className="final-test-overlay">
-          <div className="final-test-content">
-            <span className="test-icon">📜</span>
-            <h2>Последнее испытание</h2>
+        {/* КОШКА СНАРУЖИ */}
+        {(catState === 'outside' || trustLevel === 'high') && !isComplete && (
+          <div className="black-cat outside">
+            <img src={catOne} alt="кошка" />
+          </div>
+        )}
 
-            <div className="test-text">
-              {testDialog.split('\n').map((line, index) => (
-                <p key={index}>{line}</p>
+        {/* СЧАСТЛИВАЯ КОШКА */}
+        {isComplete && (
+          <div className="cat-happy">
+            <img src={catHappy} alt="кошка" />
+
+            <div className="purr-animation">
+              <span className="purr-text">мур-мур-мур</span>
+              <span className="heart">💕</span>
+            </div>
+          </div>
+        )}
+
+        {/* ИНДИКАТОР ДОВЕРИЯ */}
+        {!isComplete && (
+          <div className="trust-indicator">
+            <span>Доверие: {trustValue}%</span>
+            <div className="trust-bar">
+              <div
+                className={`trust-fill ${trustLevel}`}
+                style={{ width: `${trustValue}%` }}
+              />
+            </div>
+            <span className="trust-label">
+              {trustLevel === 'high' && 'Полное доверие'}
+              {trustLevel === 'medium' && 'Насторожена'}
+              {trustLevel === 'low' && 'Пуглива'}
+            </span>
+          </div>
+        )}
+
+        {/* КНОПКИ ДЕЙСТВИЙ */}
+        {renderButtons()}
+
+        {showFinalModal && (
+          <div className="final-modal-overlay">
+            <div className="final-modal-content">
+              {paragraphs.map((text, index) => (
+                <p key={index}>
+                  {text}
+                </p>
               ))}
+
+              <button onClick={startFinalTest}>[ ПРОЙТИ ФИНАЛЬНОЕ ИСПЫТАНИЕ ➜ ]</button>
             </div>
-
-            {/* Кнопка для перехода к следующему шагу */}
-            {testStep === 'showing' && isTestInputVisible && (
-              <button
-                className="test-continue-btn"
-                onClick={showNextTestStep}
-              >
-                👆 Понял! Продолжить
-              </button>
-            )}
-
-            {/* Декоративное поле ввода (необязательное) */}
-            {testStep === 'question' && (
-              <div className="test-decorative">
-                <p className="test-hint">💭 Запятые не имеют значения. Важно то, что в твоём сердце.</p>
-                <button
-                  className="test-continue-btn"
-                  onClick={showNextTestStep}
-                >
-                  ✨ Понял! Идём дальше
-                </button>
-              </div>
-            )}
-
-            {/* Завершение испытания */}
-            {testStep === 'complete' && isTestInputVisible && (
-              <button
-                className="test-complete-btn"
-                onClick={completeTest}
-              >
-                🎁 Найти сюрприз
-              </button>
-            )}
           </div>
-        </div>
-      )}
-    </>
+        )}
+
+        {showFinalTest && (
+          <div className="final-test-overlay">
+            <div className="final-test-content">
+              {testStep === 'intro' && (
+                <>
+                  <span className="test-icon">📜</span>
+                  <h2>Последнее испытание</h2>
+
+                  <p className="test-instruction">{testMessage}</p>
+
+                  <div className="punctuation-sentence">
+                    {words.map((word, index) => (
+                      <span key={index} className="word-with-input">
+                        <span className="word">{word}</span>
+                        {index < words.length - 1 && (
+                          <input
+                            type="text"
+                            className="punctuation-input"
+                            placeholder="?"
+                            value={punctuationInputs[index] || ''}
+                            onChange={(e) => handlePunctuationChange(index, e.target.value)}
+                            maxLength={1}
+                            autoFocus={index === 0}
+                            onKeyDown={(e) => {
+                              const allowedKeys = [',', 'Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight']
+                              if (!allowedKeys.includes(e.key) && !e.key.startsWith('Arrow')) {
+                                e.preventDefault()
+                              }
+                            }}
+                          />
+                        )}
+                      </span>
+                    ))}
+                  </div>
+
+                  <button
+                    className="test-submit-btn"
+                    onClick={handlePunctuationSubmit}
+                  > Проверить
+                  </button>
+
+                  <p className="test-hint">Поставь запятые где считаешь нужным</p>
+                </>
+              )}
+
+              {testStep === 'complete' && (
+                <>
+                  <span className="test-icon">✨</span>
+                  <p className="test-message">{testMessage}</p>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </GameLayout>
   )
 }
 

@@ -42,7 +42,6 @@ const ITEMS_NAMES: Record<string, string> = {
 export function Inventory() {
   const artifacts = useGameStore((state) => state.artifacts)
   const items = useGameStore(state => state.items)
-  const location = useGameStore(state => state.currentLocation)
 
   const removeItem = useGameStore(state => state.removeItem)
   const consumeRaf = useGameStore(state => state.consumeRaf)
@@ -66,24 +65,12 @@ export function Inventory() {
     }
 
     if (itemId === 'icecream') {
-      let message: string
+      const message = 'Мороженое нужно отдать кошке на Лунном поле. Используй его там.'
+      setUseMessage(message)
 
-      if (location !== 'moon_field') {
-        message = 'Ты уверен, что хочешь съесть его сейчас? Оно тебе ещё пригодится.'
-        setUseMessage(message)
-
-        setTimeout(() => {
-          setUseMessage(null)
-        }, 3000)
-      } else {
-        message = 'Ты отдал мороженое кошке. Она благодарно мурлычет!'
-        removeItem('icecream')
-        setUseMessage(message)
-
-        setTimeout(() => {
-          setUseMessage(null)
-        }, 3000)
-      }
+      setTimeout(() => {
+        setUseMessage(null)
+      }, 3000)
 
       return
     }
