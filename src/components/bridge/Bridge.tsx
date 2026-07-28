@@ -5,11 +5,13 @@ import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotific
 import { LoadingScreen } from '../LoadingScreen'
 import getPlayerSprite from '@/utils/playerSprites'
 import usePlayerMovement from '@/hooks/usePlayerMovement'
+import RoundFailOverlay from '../ui/roundFailOverlay/RoundFailOverlay'
 import './Bridge.css'
 
 import catSprite from '@/assets/sprites/cat/cat-9.png'
 import bg from '@/assets/backgrounds/bridge/bridge-1.jpg'
 import bgTwo from '@/assets/backgrounds/bridge/bridge-2.jpg'
+import bgThree from '@/assets/backgrounds/bridge/bridge-3.jpg'
 import playerStand from '@/assets/sprites/player/stand.png'
 import playerLeft from '@/assets/sprites/player/left.png'
 import playerRight from '@/assets/sprites/player/right.png'
@@ -22,6 +24,7 @@ function BridgeContent() {
     obtainArtifact,
     useChokopai: chokopaiFunction,
     resetChokopai,
+    chokopai,
   } = useGameStore()
 
   const [playerY, setPlayerY] = useState(0)
@@ -36,6 +39,12 @@ function BridgeContent() {
   const [showCracks, setShowCracks] = useState(false)
   const [shakeAmount, setShakeAmount] = useState(0)
 
+  const [isGameOver, setIsGameOver] = useState(false)
+  const [bridgeHealth, setBridgeHealth] = useState(100)
+  const [isRepairing, setIsRepairing] = useState(false)
+
+  const [isResetting, setIsResetting] = useState(false)
+
   const {
     playerX,
     setPlayerX,
@@ -48,56 +57,228 @@ function BridgeContent() {
   } = usePlayerMovement({
     maxX: 95,
     initialX: 40,
-    isEnabled: !isPassed && !isShowNextBtn && !isFalling,
+    scenes: 3,
+    isEnabled: !isPassed && !isShowNextBtn && !isFalling && !isGameOver && !isRepairing && !isResetting,
   })
 
   const fallAnimationRef = useRef<number | null>(null)
   const runningTimeRef = useRef<number>(0)
+  const healthThresholdRef = useRef<number>(100)
+
+  const dialogTimeoutRef = useRef<number | null>(null)
+  const repairTimeoutRef = useRef<number | null>(null)
+  const fallTimeoutRef = useRef<number | null>(null)
+  const resetTimeoutRef = useRef<number | null>(null)
+
+  const clearAllTimeouts = () => {
+    if (dialogTimeoutRef.current) {
+      clearTimeout(dialogTimeoutRef.current)
+      dialogTimeoutRef.current = null
+    }
+    if (repairTimeoutRef.current) {
+      clearTimeout(repairTimeoutRef.current)
+      repairTimeoutRef.current = null
+    }
+    if (fallTimeoutRef.current) {
+      clearTimeout(fallTimeoutRef.current)
+      fallTimeoutRef.current = null
+    }
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current)
+      resetTimeoutRef.current = null
+    }
+    if (fallAnimationRef.current) {
+      clearInterval(fallAnimationRef.current)
+      fallAnimationRef.current = null
+    }
+  }
 
   // ГЕНЕРАЦИЯ СЛУЧАЙНЫХ ЗНАЧЕНИЙ ДЛЯ ОБЛОМКОВ
   const [debrisPieces] = useState(() => {
-    return [...Array(15)].map(() => ({
-      left: 20 + Math.random() * 60,
-      top: 20 + Math.random() * 40,
-      width: 5 + Math.random() * 15,
-      height: 5 + Math.random() * 15,
+    return [...Array(20)].map(() => ({
+      left: 10 + Math.random() * 80,
+      top: 10 + Math.random() * 60,
+      width: 5 + Math.random() * 20,
+      height: 5 + Math.random() * 20,
       delay: Math.random() * 0.5,
       rotation: Math.random() * 360,
+      speed: 0.5 + Math.random() * 1,
     }))
   })
 
   // ГЕНЕРАЦИЯ СЛЕДОВ ПАДЕНИЯ
   const [fallTrails] = useState(() => {
-    return [...Array(8)].map(() => ({
-      left: -30 + Math.random() * 60,
+    return [...Array(12)].map(() => ({
+      left: -40 + Math.random() * 80,
       delay: Math.random() * 0.5,
-      width: 3 + Math.random() * 6,
-      height: 10 + Math.random() * 20,
+      width: 3 + Math.random() * 8,
+      height: 10 + Math.random() * 30,
+      opacity: 0.3 + Math.random() * 0.7,
     }))
   })
 
-  // СБРОС МОСТА
-  const resetBridge = () => {
+  // ПРОВЕРКА И ТРАТА ЧОКОПАЕВ ПРИ УМЕНЬШЕНИИ ЗДОРОВЬЯ МОСТА
+  const checkAndSpendChokopai = (currentHealth: number) => {
+    const healthLost = healthThresholdRef.current - currentHealth
+    const chokopaiToSpend = Math.floor(healthLost / 25)
+
+    if (chokopaiToSpend > 0 && chokopai.current > 0) {
+      const actualSpend = Math.min(chokopaiToSpend, chokopai.current)
+
+      for (let i = 0; i < actualSpend; i++) {
+        chokopaiFunction()
+      }
+
+      healthThresholdRef.current = currentHealth + (healthLost % 25)
+
+      if (actualSpend > 0) {
+        console.log(actualSpend)
+        setDialogText(`Мост повреждён! Потрачено ${actualSpend} жизней. Осталось ${chokopai.current}`)
+        // Очищаем предыдущий таймер
+        if (dialogTimeoutRef.current) {
+          clearTimeout(dialogTimeoutRef.current)
+          dialogTimeoutRef.current = null
+        }
+        dialogTimeoutRef.current = setTimeout(() => {
+          if (chokopai.current > 0 && !isResetting) {
+            setDialogText('')
+          }
+          dialogTimeoutRef.current = null
+        }, 2000)
+      }
+
+      if (chokopai.current <= 0) {
+        console.log('Жизни кончились! Мост не выдерживает..')
+        setDialogText('Жизни кончились! Мост не выдерживает...')
+        if (dialogTimeoutRef.current) {
+          clearTimeout(dialogTimeoutRef.current)
+          dialogTimeoutRef.current = null
+        }
+        dialogTimeoutRef.current = setTimeout(() => {
+          startFalling()
+          dialogTimeoutRef.current = null
+        }, 1500)
+        return true
+      }
+    }
+
+    return false
+  }
+
+  // ВОССТАНОВЛЕНИЕ МОСТА
+  const repairBridge = () => {
+    setBridgeHealth(100)
+    healthThresholdRef.current = 100
+    setShowCracks(false)
+    setShakeAmount(0)
+    setIsRepairing(true)
+
+    // Очищаем предыдущий таймер
+    if (repairTimeoutRef.current) {
+      clearTimeout(repairTimeoutRef.current)
+      repairTimeoutRef.current = null
+    }
+    repairTimeoutRef.current = setTimeout(() => {
+      setIsRepairing(false)
+      if (!isResetting) {
+        console.log(isRepairing)
+        setDialogText(`Мост восстановлен! Осталось ${chokopai.current} жизней. Иди медленно!`)
+        if (dialogTimeoutRef.current) {
+          clearTimeout(dialogTimeoutRef.current)
+          dialogTimeoutRef.current = null
+        }
+        dialogTimeoutRef.current = setTimeout(() => {
+          setDialogText('')
+          dialogTimeoutRef.current = null
+        }, 2000)
+      }
+      repairTimeoutRef.current = null
+    }, 2000)
+  }
+
+  // ОБРАБОТКА КОНЦА ТУРА
+  const handleGameOver = () => {
+    setIsFalling(false)
+    setIsGameOver(true)
+
+    clearAllTimeouts()
+
+    if (fallAnimationRef.current) {
+      clearInterval(fallAnimationRef.current)
+      fallAnimationRef.current = null
+    }
+
+    setBridgeHealth(0)
+    healthThresholdRef.current = 0
+
+    setShowCracks(false)
+    setShakeAmount(0)
+
+    setDialogText('Все жизни потеряны! Ты падаешь в пропасть... Тур окончен!')
+  }
+
+  // ПОЛНЫЙ СБРОС ТУРА
+  // ПОЛНЫЙ СБРОС ТУРА
+  const resetFullTour = () => {
+    console.log('🔄 RESET FULL TOUR STARTED')
+    console.log('📊 Текущие попытки:', attempts)
+
+    setIsResetting(true)
+    clearAllTimeouts()
+
+    setIsGameOver(false)
+    setIsFalling(false)
+    setIsPassed(false)
+    setShowCracks(false)
+    setShakeAmount(0)
+    setPlayerY(0)
     setPlayerX(40)
     setCurrentScene(0)
     runningTimeRef.current = 0
-    setShowCracks(false)
-    setShakeAmount(0)
-    setAttempts((prev) => prev + 1)
+    setIsShowNextBtn(false)
+    setShowArtifact(false)
+    setIsRepairing(false)
     setDialogText('')
+
+    setBridgeHealth(100)
+    healthThresholdRef.current = 100
 
     resetMovement()
     resetChokopai()
 
-    if (attempts >= 2) {
-      const failMessages = [
-        'Мя. Провалился. Быстро бежал. А куда? Мост - это не спринт. Попробуй ещё раз. Я подожду. Мне некуда спешить.',
-        'Ну вот, опять. Ты там что, марафонец? Мост, блин, а не беговая дорожка.',
-        'Пф... Ну ты и торопыга! Мост от твоего бега аж зашатался. Медленнее, медленнее, я не хочу ловить тебя внизу.',
-        'Я начинаю думать, что ты это специально делаешь. Просто чтобы на меня впечатление произвести. Ну, впечатлён. Теперь иди нормально.'
-      ]
-      setDialogText(failMessages[Math.floor(Math.random() * failMessages.length)])
-      setTimeout(() => setDialogText(''), 3000)
+    const newAttempts = attempts + 1
+    setAttempts(newAttempts)
+
+    // Сообщения для провалов
+    const failMessages = [
+      'Мя. Провалился. Быстро бежал. А куда? Мост - это не спринт. Попробуй ещё раз. Я подожду. Мне некуда спешить.',
+      'Ну вот, опять. Ты там что, марафонец? Мост, блин, а не беговая дорожка.',
+      'Пф... Ну ты и торопыга! Мост от твоего бега аж зашатался. Медленнее, медленнее, я не хочу ловить тебя внизу.',
+      'Я начинаю думать, что ты это специально делаешь. Просто чтобы на меня впечатление произвести. Ну, впечатлён. Теперь иди нормально.'
+    ]
+
+    if (newAttempts >= 1) {
+      const cyclicIndex = (newAttempts - 1) % failMessages.length
+
+      resetTimeoutRef.current = setTimeout(() => {
+        setDialogText(failMessages[cyclicIndex])
+        dialogTimeoutRef.current = setTimeout(() => {
+          setDialogText('')
+          dialogTimeoutRef.current = null
+        }, 3000)
+        resetTimeoutRef.current = null
+        setTimeout(() => {
+          setIsResetting(false)
+        }, 100)
+      }, 100)
+    } else {
+      resetTimeoutRef.current = setTimeout(() => {
+        setDialogText('Мя. Долго же ты. Мост... Ну, давай, иди. Я тут посижу, подожду. Можешь не спешить. Я вообще никуда не тороплюсь. Мне и тут хорошо.')
+        resetTimeoutRef.current = null
+        setTimeout(() => {
+          setIsResetting(false)
+        }, 100)
+      }, 100)
     }
   }
 
@@ -108,92 +289,167 @@ function BridgeContent() {
     setShakeAmount(0)
     setShowCracks(false)
 
-    if (fallAnimationRef.current) {
-      clearInterval(fallAnimationRef.current)
-      fallAnimationRef.current = null
-    }
+    clearAllTimeouts()
 
-    fallAnimationRef.current = window.setInterval(() => {
-      setPlayerY(prev => {
-        const newY = prev + 5
-        setShakeAmount(prevShake => prevShake + 0.3)
+    setDialogText('Мост разрушается!')
 
-        if (newY >= 150) {
-          if (fallAnimationRef.current) {
-            clearInterval(fallAnimationRef.current)
-            fallAnimationRef.current = null
+    fallTimeoutRef.current = setTimeout(() => {
+      fallAnimationRef.current = window.setInterval(() => {
+        setPlayerY(prev => {
+          const newY = prev + 8
+          setShakeAmount(prevShake => prevShake + 0.8)
+
+          if (newY >= 250) {
+            if (fallAnimationRef.current) {
+              clearInterval(fallAnimationRef.current)
+              fallAnimationRef.current = null
+            }
+
+            if (chokopai.current > 0) {
+              setTimeout(() => {
+                setIsFalling(false)
+                setPlayerY(0)
+                repairBridge()
+              }, 500)
+            } else {
+              clearAllTimeouts()
+              handleGameOver()
+            }
           }
-          setTimeout(() => {
-            resetBridge()
-            setIsFalling(false)
-            setPlayerY(0)
-          }, 500)
-        }
-        return newY
-      })
-    }, 40)
+          return newY
+        })
+      }, 25)
+      fallTimeoutRef.current = null
+    }, 1000)
   }
 
-  // ОТСЛЕЖИВАНИЕ ВРЕМЕНИ БЕГА
+  // ОТСЛЕЖИВАНИЕ БЕГА И РАЗРУШЕНИЯ МОСТА
   useEffect(() => {
     let interval: number | null = null
 
-    // Только если игрок бежит (двигается без Shift) и не падает
-    if (isMoving && !isShiftHeld && !isFalling && !isPassed) {
+    if (isResetting) {
+      return () => {
+        if (interval) clearInterval(interval)
+      }
+    }
+
+    // БЕГ - быстрое разрушение моста
+    if (isMoving && !isShiftHeld && !isFalling && !isPassed && !isGameOver && !isRepairing) {
       interval = setInterval(() => {
-        // Накопление времени бега
         runningTimeRef.current += 0.1
 
-        if (runningTimeRef.current >= 0.5 && runningTimeRef.current < 1) {
-          setDialogText('Доски трещат! Иди медленнее...')
-          setTimeout(() => setDialogText(''), 2000)
-          setShowCracks(true)
-        }
+        const damage = 8
+        setShakeAmount(prev => Math.min(prev + 0.3, 5))
 
-        if (runningTimeRef.current >= 1) {
-          setDialogText('Мост провалился!')
-          setTimeout(() => setDialogText(''), 2000)
-          chokopaiFunction()
-          startFalling()
-          if (interval) clearInterval(interval)
-        }
-      }, 100)
-    } else {
-      // Если игрок остановился или перешел на тихую ходьбу - обнуляем таймер
-      if (runningTimeRef.current > 0) {
-        runningTimeRef.current = 0
+        setBridgeHealth(prev => {
+          const newHealth = Math.max(0, prev - damage)
+
+          if (newHealth < 30 && newHealth > 0) {
+            setShowCracks(true)
+            setDialogText('МОСТ РУШИТСЯ! ОСТАНОВИСЬ!')
+          } else if (newHealth < 60) {
+            setShowCracks(true)
+            setDialogText('Мост трещит! Сбавь скорость!')
+          } else if (newHealth < 80) {
+            setShowCracks(true)
+            setDialogText('Бег разрушает мост! Иди медленно!')
+          }
+
+          if (newHealth < healthThresholdRef.current - 25) {
+            const gameOver = checkAndSpendChokopai(newHealth)
+            if (gameOver) {
+              if (interval) clearInterval(interval)
+              return newHealth
+            }
+          }
+
+          if (newHealth <= 0) {
+            setDialogText('Мост не выдержал бега!')
+            resetMovement()
+            setShowCracks(true)
+            setShakeAmount(5)
+
+            // Проверяем, есть ли жизни
+            if (chokopai.current > 0) {
+              chokopaiFunction()
+              setDialogText(`Потрачена последняя жизнь! Осталось ${chokopai.current}`)
+              if (repairTimeoutRef.current) {
+                clearTimeout(repairTimeoutRef.current)
+                repairTimeoutRef.current = null
+              }
+              repairTimeoutRef.current = setTimeout(() => {
+                repairBridge()
+                repairTimeoutRef.current = null
+              }, 1500)
+            } else {
+              clearAllTimeouts()
+              startFalling()
+            }
+
+            if (interval) clearInterval(interval)
+            return 0
+          }
+
+          return newHealth
+        })
+      }, 200)
+    }
+    // СТОИМ
+    else {
+      if (!isFalling && !isGameOver && !isRepairing && !isPassed && !isResetting) {
+        setBridgeHealth(prev => {
+          const newHealth = Math.min(100, prev + 0.5)
+          if (newHealth > 80) {
+            setShowCracks(false)
+            setShakeAmount(prev => Math.max(0, prev - 0.1))
+            if (dialogTimeoutRef.current) {
+              clearTimeout(dialogTimeoutRef.current)
+              dialogTimeoutRef.current = null
+            }
+            dialogTimeoutRef.current = setTimeout(() => {
+              setDialogText('')
+              dialogTimeoutRef.current = null
+            }, 1500)
+          }
+          return newHealth
+        })
       }
+      runningTimeRef.current = 0
     }
 
     return () => {
       if (interval) clearInterval(interval)
     }
-  }, [isMoving, isShiftHeld, isFalling, isPassed])
+  }, [isMoving, isShiftHeld, isFalling, isPassed, isGameOver, isRepairing, isResetting])
 
   // ПРОВЕРКА ПРОХОЖДЕНИЯ МОСТА
   useEffect(() => {
-    if (currentScene === 1 && playerX >= 85 && !isPassed && !isFalling) {
+    if (currentScene === 2 && playerX >= 85 && !isPassed && !isFalling && !isGameOver && !isRepairing && !isResetting) {
       setDialogText(
         runningTimeRef.current > 0
           ? 'Ты прошёл, но бежал. Мост мог рухнуть. В следующий раз иди тихо.'
           : 'Молодец! Тихо и аккуратно, как я учил. Вот тебе награда - тихий шаг. Теперь никто тебя не услышит. Ну, кроме меня, конечно. Я всё слышу.'
       )
+
       setIsPassed(true)
       resetMovement()
+      setShowCracks(false)
+      setShakeAmount(0)
+
       setShowArtifact(true)
       obtainArtifact('silent_step')
       setProgress('bridge_passed', true)
       setTimeout(() => setIsShowNextBtn(true), 5000)
     }
-  }, [currentScene, playerX, isPassed, isFalling])
+  }, [currentScene, playerX, isPassed, isFalling, isGameOver, bridgeHealth, isRepairing, isResetting])
 
+  // Очистка при размонтировании
   useEffect(() => {
-    setTimeout(() => {
-      setDialogText('Мя. Долго же ты. Мост... Ну, давай, иди. Я тут посижу, подожду. Можешь не спешить. Я вообще никуда не тороплюсь. Мне и тут хорошо.')
-    }, 300)
+    return () => {
+      clearAllTimeouts()
+    }
   }, [])
 
-  // ПЕРЕХОД
   const handleContinue = () => {
     setLocation('livingroom')
   }
@@ -202,10 +458,7 @@ function BridgeContent() {
     setShowArtifact(false)
   }
 
-  const backgrounds = [
-    bg,
-    bgTwo,
-  ]
+  const backgrounds = [bg, bgThree, bgTwo]
 
   return (
     <GameLayout
@@ -220,11 +473,29 @@ function BridgeContent() {
           alt="Bridge background"
         />
 
-        {showCracks && !isFalling && !isPassed && (
+        <div className="bridge-status">
+          <div className="health-bar-container">
+            <div className="health-bar-label">Прочность моста: {Math.round(bridgeHealth)}%</div>
+            <div className="health-bar">
+              <div
+                className="health-bar-fill"
+                style={{
+                  width: `${bridgeHealth}%`,
+                  background: bridgeHealth > 60 ? '#4caf50' : bridgeHealth > 30 ? '#ff9800' : '#f44336',
+                  transition: 'width 0.3s ease, background 0.3s ease'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {showCracks && !isFalling && !isPassed && !isGameOver && !isResetting && (
           <div className="crack-overlay">
-            <div className="crack-line" style={{ left: '50%', animationDelay: '0s' }}></div>
-            <div className="crack-line" style={{ left: '58%', animationDelay: '0.3s' }}></div>
-            <div className="crack-line" style={{ left: '65%', animationDelay: '0.6s' }}></div>
+            <div className="crack-line" style={{ left: '40%', animationDelay: '0s' }} />
+            <div className="crack-line" style={{ left: '48%', animationDelay: '0.2s' }} />
+            <div className="crack-line" style={{ left: '56%', animationDelay: '0.4s' }} />
+            <div className="crack-line" style={{ left: '64%', animationDelay: '0.6s' }} />
+            <div className="crack-line" style={{ left: '72%', animationDelay: '0.8s' }} />
           </div>
         )}
 
@@ -243,6 +514,7 @@ function BridgeContent() {
                     height: `${piece.height}px`,
                     animationDelay: `${piece.delay}s`,
                     transform: `rotate(${piece.rotation}deg)`,
+                    animationDuration: `${piece.speed}s`,
                   }}
                 />
               ))}
@@ -252,14 +524,15 @@ function BridgeContent() {
         )}
 
         <div
-          className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''}`}
+          className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''} ${isGameOver ? 'dead' : ''}`}
           style={{
             left: `${playerX}%`,
             bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
             transform: isFalling
-              ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.3, 1 - playerY / 200)})`
+              ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.2, 1 - playerY / 250)})`
               : 'none',
-            opacity: isFalling ? Math.max(0, 1 - playerY / 150) : 1,
+            opacity: isFalling ? Math.max(0, 1 - playerY / 180) : 1,
+            pointerEvents: isResetting ? 'none' : 'auto',
           }}
         >
           <img
@@ -267,7 +540,7 @@ function BridgeContent() {
             alt="Вампир"
             className="player-sprite"
             style={{
-              transform: !isMovingLeft && !isFalling ? 'scaleX(-1)' : 'scaleX(1)',
+              transform: !isMovingLeft && !isFalling && !isGameOver ? 'scaleX(-1)' : 'scaleX(1)',
             }}
           />
 
@@ -282,6 +555,7 @@ function BridgeContent() {
                     animationDelay: `${trail.delay}s`,
                     width: `${trail.width}px`,
                     height: `${trail.height}px`,
+                    opacity: trail.opacity,
                   }}
                 />
               ))}
@@ -293,12 +567,12 @@ function BridgeContent() {
           <div
             className="screen-shake"
             style={{
-              transform: `translate(${Math.sin(shakeAmount) * 5}px, ${Math.cos(shakeAmount * 1.3) * 5}px)`
+              transform: `translate(${Math.sin(shakeAmount) * 8}px, ${Math.cos(shakeAmount * 1.3) * 8}px)`
             }}
           />
         )}
 
-        {currentScene === 1 && (
+        {currentScene === 2 && !isGameOver && !isFalling && !isResetting && (
           <img
             className='cat-cat'
             src={catSprite}
@@ -309,6 +583,13 @@ function BridgeContent() {
         <div className="controls-hint">
           ← → или A D - движение | SHIFT - медленный шаг
         </div>
+
+        {isGameOver && (
+          <RoundFailOverlay
+            title="Мост разрушен!"
+            onAction={resetFullTour}
+          />
+        )}
 
         {showArtifact && (
           <ArtifactNotification
@@ -323,7 +604,7 @@ function BridgeContent() {
 }
 
 function Bridge() {
-  const images = [catSprite, bg, bgTwo, playerStand, playerLeft, playerRight, paw]
+  const images = [catSprite, bg, bgTwo, bgThree, playerStand, playerLeft, playerRight, paw]
 
   return (
     <LoadingScreen images={images} minLoadingTime={1000}>

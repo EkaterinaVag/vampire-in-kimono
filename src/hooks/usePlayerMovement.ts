@@ -138,7 +138,6 @@ const usePlayerMovement = ({
   const resetMovement = useCallback(() => {
     setIsMoving(false)
     setIsMovingLeft(false)
-    // setPlayerX(initialX)
     // setCurrentScene(0)
   }, [initialX])
 
