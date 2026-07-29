@@ -130,70 +130,7 @@ function BridgeContent() {
       }
 
       healthThresholdRef.current = currentHealth + (healthLost % 25)
-
-      if (actualSpend > 0) {
-        console.log(actualSpend)
-        setDialogText(`Мост повреждён! Потрачено ${actualSpend} жизней. Осталось ${chokopai.current}`)
-        // Очищаем предыдущий таймер
-        if (dialogTimeoutRef.current) {
-          clearTimeout(dialogTimeoutRef.current)
-          dialogTimeoutRef.current = null
-        }
-        dialogTimeoutRef.current = setTimeout(() => {
-          if (chokopai.current > 0 && !isResetting) {
-            setDialogText('')
-          }
-          dialogTimeoutRef.current = null
-        }, 2000)
-      }
-
-      if (chokopai.current <= 0) {
-        console.log('Жизни кончились! Мост не выдерживает..')
-        setDialogText('Жизни кончились! Мост не выдерживает...')
-        if (dialogTimeoutRef.current) {
-          clearTimeout(dialogTimeoutRef.current)
-          dialogTimeoutRef.current = null
-        }
-        dialogTimeoutRef.current = setTimeout(() => {
-          startFalling()
-          dialogTimeoutRef.current = null
-        }, 1500)
-        return true
-      }
     }
-
-    return false
-  }
-
-  // ВОССТАНОВЛЕНИЕ МОСТА
-  const repairBridge = () => {
-    setBridgeHealth(100)
-    healthThresholdRef.current = 100
-    setShowCracks(false)
-    setShakeAmount(0)
-    setIsRepairing(true)
-
-    // Очищаем предыдущий таймер
-    if (repairTimeoutRef.current) {
-      clearTimeout(repairTimeoutRef.current)
-      repairTimeoutRef.current = null
-    }
-    repairTimeoutRef.current = setTimeout(() => {
-      setIsRepairing(false)
-      if (!isResetting) {
-        console.log(isRepairing)
-        setDialogText(`Мост восстановлен! Осталось ${chokopai.current} жизней. Иди медленно!`)
-        if (dialogTimeoutRef.current) {
-          clearTimeout(dialogTimeoutRef.current)
-          dialogTimeoutRef.current = null
-        }
-        dialogTimeoutRef.current = setTimeout(() => {
-          setDialogText('')
-          dialogTimeoutRef.current = null
-        }, 2000)
-      }
-      repairTimeoutRef.current = null
-    }, 2000)
   }
 
   // ОБРАБОТКА КОНЦА ТУРА
@@ -218,11 +155,7 @@ function BridgeContent() {
   }
 
   // ПОЛНЫЙ СБРОС ТУРА
-  // ПОЛНЫЙ СБРОС ТУРА
   const resetFullTour = () => {
-    console.log('🔄 RESET FULL TOUR STARTED')
-    console.log('📊 Текущие попытки:', attempts)
-
     setIsResetting(true)
     clearAllTimeouts()
 
@@ -257,29 +190,18 @@ function BridgeContent() {
       'Я начинаю думать, что ты это специально делаешь. Просто чтобы на меня впечатление произвести. Ну, впечатлён. Теперь иди нормально.'
     ]
 
+    let message = 'Мя. Долго же ты. Мост... Ну, давай, иди. Я тут посижу, подожду. Можешь не спешить. Я вообще никуда не тороплюсь. Мне и тут хорошо.'
+
     if (newAttempts >= 1) {
       const cyclicIndex = (newAttempts - 1) % failMessages.length
-
-      resetTimeoutRef.current = setTimeout(() => {
-        setDialogText(failMessages[cyclicIndex])
-        dialogTimeoutRef.current = setTimeout(() => {
-          setDialogText('')
-          dialogTimeoutRef.current = null
-        }, 3000)
-        resetTimeoutRef.current = null
-        setTimeout(() => {
-          setIsResetting(false)
-        }, 100)
-      }, 100)
-    } else {
-      resetTimeoutRef.current = setTimeout(() => {
-        setDialogText('Мя. Долго же ты. Мост... Ну, давай, иди. Я тут посижу, подожду. Можешь не спешить. Я вообще никуда не тороплюсь. Мне и тут хорошо.')
-        resetTimeoutRef.current = null
-        setTimeout(() => {
-          setIsResetting(false)
-        }, 100)
-      }, 100)
+      message = failMessages[cyclicIndex]
     }
+
+    setDialogText(message)
+
+    setTimeout(() => {
+      setIsResetting(false)
+    }, 100)
   }
 
   // АНИМАЦИЯ ПАДЕНИЯ
@@ -305,16 +227,8 @@ function BridgeContent() {
               fallAnimationRef.current = null
             }
 
-            if (chokopai.current > 0) {
-              setTimeout(() => {
-                setIsFalling(false)
-                setPlayerY(0)
-                repairBridge()
-              }, 500)
-            } else {
-              clearAllTimeouts()
-              handleGameOver()
-            }
+            clearAllTimeouts()
+            handleGameOver()
           }
           return newY
         })
@@ -356,31 +270,16 @@ function BridgeContent() {
           }
 
           if (newHealth < healthThresholdRef.current - 25) {
-            const gameOver = checkAndSpendChokopai(newHealth)
-            if (gameOver) {
-              if (interval) clearInterval(interval)
-              return newHealth
-            }
+            checkAndSpendChokopai(newHealth)
           }
 
           if (newHealth <= 0) {
-            setDialogText('Мост не выдержал бега!')
             resetMovement()
             setShowCracks(true)
             setShakeAmount(5)
 
-            // Проверяем, есть ли жизни
             if (chokopai.current > 0) {
               chokopaiFunction()
-              setDialogText(`Потрачена последняя жизнь! Осталось ${chokopai.current}`)
-              if (repairTimeoutRef.current) {
-                clearTimeout(repairTimeoutRef.current)
-                repairTimeoutRef.current = null
-              }
-              repairTimeoutRef.current = setTimeout(() => {
-                repairBridge()
-                repairTimeoutRef.current = null
-              }, 1500)
             } else {
               clearAllTimeouts()
               startFalling()
@@ -424,6 +323,8 @@ function BridgeContent() {
 
   // ПРОВЕРКА ПРОХОЖДЕНИЯ МОСТА
   useEffect(() => {
+    let nextBtnTimer: number | null = null;
+
     if (currentScene === 2 && playerX >= 85 && !isPassed && !isFalling && !isGameOver && !isRepairing && !isResetting) {
       setDialogText(
         runningTimeRef.current > 0
@@ -439,7 +340,11 @@ function BridgeContent() {
       setShowArtifact(true)
       obtainArtifact('silent_step')
       setProgress('bridge_passed', true)
-      setTimeout(() => setIsShowNextBtn(true), 5000)
+      nextBtnTimer = setTimeout(() => setIsShowNextBtn(true), 5000)
+    }
+
+    return () => {
+      if (nextBtnTimer) clearTimeout(nextBtnTimer)
     }
   }, [currentScene, playerX, isPassed, isFalling, isGameOver, bridgeHealth, isRepairing, isResetting])
 

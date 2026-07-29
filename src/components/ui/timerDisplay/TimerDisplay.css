@@ -12,30 +12,30 @@
     border-radius: 40px;
     border: 1px solid rgba(255, 200, 180, 0.2);
     padding: 15px 40px;
+}
 
-    .timer-icon {
-        width: auto;
-        height: 100px;
-        animation: timerSway 0.6s ease-in-out infinite alternate;
+.timer-icon {
+    width: auto;
+    height: 100px;
+    animation: timerSway 0.6s ease-in-out infinite alternate;
+}
 
-        @keyframes timerSway {
-            0% {
-                transform: rotate(-10deg);
-            }
+.timer-text {
+    font-family: 'Courier New', monospace;
+    font-size: 5.4rem;
+    font-weight: bold;
+    color: #ffd4b0;
+    text-shadow: 0 0 20px rgba(255, 200, 150, 0.3);
+    min-width: 30px;
+    text-align: center;
+}
 
-            100% {
-                transform: rotate(10deg);
-            }
-        }
+@keyframes timerSway {
+    0% {
+        transform: rotate(-10deg);
     }
 
-    .timer-text {
-        font-family: 'Courier New', monospace;
-        font-size: 5.4rem;
-        font-weight: bold;
-        color: #ffd4b0;
-        text-shadow: 0 0 20px rgba(255, 200, 150, 0.3);
-        min-width: 30px;
-        text-align: center;
+    100% {
+        transform: rotate(10deg);
     }
 }

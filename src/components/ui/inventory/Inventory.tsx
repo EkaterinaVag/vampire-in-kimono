@@ -11,6 +11,7 @@ import paw from '@/assets/items/artifacts/paw.png'
 import furr from '@/assets/items/artifacts/furr.png'
 import icecream from '@/assets/items/icecream.png'
 import coffee from '@/assets/items/coffee.png'
+import { createPortal } from 'react-dom'
 
 const ARTIFACT_ICONS: Record<string, string> = {
   wisdom_purr: purr,
@@ -176,7 +177,7 @@ export function Inventory() {
         </div>
       )}
 
-      {selectedArtifact && artifactData && (
+      {selectedArtifact && artifactData && createPortal(
         <div className="artifact-modal-overlay" onClick={closeArtifactModal}>
           <div className="artifact-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="artifact-modal-header">
@@ -201,7 +202,8 @@ export function Inventory() {
               Понял
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
