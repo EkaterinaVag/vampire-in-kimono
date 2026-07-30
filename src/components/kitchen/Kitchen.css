@@ -83,7 +83,7 @@
 }
 
 .raf {
-  bottom: 38vh;
+  bottom: 45%;
   left: 0;
 }
 
@@ -133,11 +133,11 @@
 
 .kitchen-item.fridge {
   left: 50%;
-  top: 38%;
+  top: 35%;
   transform: translate(-50%, -50%);
-  width: 16vw;
+  width: 18vw;
   min-width: 140px;
-  max-width: 280px;
+  /* max-width: 280px; */
   height: 25vh;
   min-height: 250px;
   max-height: 400px;

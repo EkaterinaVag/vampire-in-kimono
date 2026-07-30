@@ -13,9 +13,9 @@
   bottom: 3vh;
   left: 1vw;
   z-index: 2;
-  width: 25vw;
-  min-width: 300px;
-  max-width: 560px;
+  width: 30vw;
+  min-width: 350px;
+  /* max-width: 560px; */
 }
 
 .bg-text img {

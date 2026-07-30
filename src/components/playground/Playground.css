@@ -168,9 +168,9 @@
   position: absolute;
   right: 0;
   bottom: 15vh;
-  height: 14vh;
+  height: 20vh;
   min-height: 120px;
-  max-height: 250px;
+  /* max-height: 250px; */
   width: auto;
   z-index: 1;
 }

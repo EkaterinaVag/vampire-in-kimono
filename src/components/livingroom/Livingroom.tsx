@@ -19,9 +19,6 @@ function LivingroomContent() {
     setProgress,
     setLocation,
     obtainArtifact,
-    applyFurClump,
-    useChokopai: chokopaiFunction,
-    chokopai
   } = useGameStore()
 
   const [dialogText, setDialogText] = useState('')
@@ -68,9 +65,6 @@ function LivingroomContent() {
     setBagY(50)
     setBagDirection(1)
     setDialogText('')
-    if (chokopai.current > 0) {
-      chokopaiFunction()
-    }
   }
 
   // ПОКАЗ СЛУЧАЙНОЙ ФРАЗЫ ВО ВРЕМЯ БЕГА
@@ -172,7 +166,6 @@ function LivingroomContent() {
       setDialogText(savedPhrase)
       setShowArtifact(true)
       obtainArtifact('fur_clump')
-      applyFurClump()
       setProgress('livingroom_bagCatSaved', true)
 
       setTimeout(() => {
