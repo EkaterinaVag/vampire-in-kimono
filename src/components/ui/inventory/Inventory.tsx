@@ -188,12 +188,12 @@ export function Inventory() {
 
             <div className="artifact-modal-body">
               <div className="artifact-metaphor">
-                <span className="artifact-label">Метафора</span>
+                <span className="artifact-label-m">Метафора</span>
                 <p>{artifactData.metaphor}</p>
               </div>
 
               <div className="artifact-effect">
-                <span className="artifact-label">В финале</span>
+                <span className="artifact-label-m">В финале</span>
                 <p>{artifactData.effect}</p>
               </div>
             </div>

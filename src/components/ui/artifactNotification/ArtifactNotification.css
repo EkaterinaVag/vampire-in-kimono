@@ -24,7 +24,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 2vh;
   animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -33,21 +33,27 @@
     transform: scale(0.6) rotate(-4deg);
     opacity: 0;
   }
+
   100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
   }
 }
 
+/* Обертка иконки */
 .artifact-icon-wrapper {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 10vw;
+  min-width: 80px;
+  max-width: 180px;
+  height: 10vw;
+  min-height: 80px;
+  max-height: 180px;
 }
 
 .artifact-icon {
-  width: 120px;
-  height: 120px;
+  width: 100%;
+  height: 100%;
   display: block;
   animation: floatArtifact 2s ease-in-out infinite alternate;
   filter: drop-shadow(0 0 40px rgba(255, 200, 150, 0.3));
@@ -57,11 +63,13 @@
   0% {
     transform: translateY(0) scale(1);
   }
+
   100% {
-    transform: translateY(-10px) scale(1.05);
+    transform: translateY(-1vh) scale(1.05);
   }
 }
 
+/* Блестки */
 .sparkles {
   position: absolute;
   top: 0;
@@ -73,40 +81,40 @@
 
 .sparkle {
   position: absolute;
-  font-size: 22px;
+  font-size: clamp(1.2rem, 2.2vh, 2.2rem);
   color: #ffd700;
   animation: sparkleFloat 1.2s ease-in-out infinite alternate;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
 
 .sparkle-1 {
-  top: -16px;
-  left: -16px;
+  top: -2vh;
+  left: -2vw;
   animation-delay: 0s;
 }
 
 .sparkle-2 {
-  top: -10px;
-  right: -10px;
+  top: -1.5vh;
+  right: -1.5vw;
   animation-delay: 0.25s;
 }
 
 .sparkle-3 {
-  bottom: -6px;
+  bottom: -1vh;
   left: 50%;
   transform: translateX(-50%);
   animation-delay: 0.5s;
 }
 
 .sparkle-4 {
-  bottom: 10px;
-  left: -20px;
+  bottom: 1vh;
+  left: -2.5vw;
   animation-delay: 0.15s;
 }
 
 .sparkle-5 {
-  bottom: 10px;
-  right: -20px;
+  bottom: 1vh;
+  right: -2.5vw;
   animation-delay: 0.4s;
 }
 
@@ -115,22 +123,24 @@
     transform: translateY(0) scale(0.4) rotate(0deg);
     opacity: 0.2;
   }
+
   100% {
-    transform: translateY(-16px) scale(1.2) rotate(20deg);
+    transform: translateY(-2vh) scale(1.2) rotate(20deg);
     opacity: 1;
   }
 }
 
+/* Обертка имени */
 .artifact-name-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 0.4vh;
 }
 
 .artifact-label {
   font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
+  font-size: clamp(0.6rem, 0.9vh, 0.9rem);
   color: #ffc8d8;
   letter-spacing: 3px;
   text-transform: uppercase;
@@ -139,34 +149,39 @@
 
 .artifact-name {
   font-family: 'Courier New', monospace;
-  font-size: 2rem;
+  font-size: clamp(1.2rem, 2.2vh, 2.2rem);
   font-weight: bold;
   color: #ffd9b0;
   text-shadow: 0 0 40px rgba(255, 200, 150, 0.3);
+  text-align: center;
 }
 
-
+/* Текст кота */
 .artifact-cat-text {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-  padding: 12px 24px;
+  gap: 1vw;
+  margin-top: 0.8vh;
+  padding: 1vh 2vw;
   background: rgba(0, 0, 0, 0.4);
   border-radius: 40px;
   border: 1px solid rgba(255, 200, 230, 0.15);
   backdrop-filter: blur(4px);
+  max-width: 80vw;
 }
 
 .cat-avatar {
-  font-size: 28px;
+  font-size: clamp(1.5rem, 2.8vh, 2.8rem);
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .cat-message {
   font-family: 'Courier New', monospace;
-  font-size: 1rem;
+  font-size: clamp(0.7rem, 1.1vh, 1.1rem);
   color: #f0dcc8;
   font-style: italic;
-  max-width: 400px;
+  max-width: 30vw;
+  min-width: 120px;
+  text-align: center;
 }

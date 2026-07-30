@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 0.4vh;
   transition: all 0.3s ease;
   user-select: none;
 }
@@ -27,19 +27,20 @@
 
 .item-label {
   font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-size: clamp(0.9rem, 0.9vh, 1rem);
   color: rgba(255, 255, 255, 0.6);
   background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
-  padding: 4px 12px;
+  padding: 0.3vh 1vw;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   pointer-events: none;
+  white-space: nowrap;
 }
 
 .item-check {
-  font-size: 1.2rem;
-  margin-top: 2px;
+  font-size: clamp(0.8rem, 1.4vh, 1.4rem);
+  margin-top: 0.2vh;
   animation: checkPop 0.4s ease forwards;
 }
 
@@ -48,45 +49,50 @@
     transform: scale(0);
     opacity: 0;
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
   }
 }
 
-/* --- ПОЗИЦИИ ПРЕДМЕТОВ --- */
 .blood {
-  bottom: 250px;
+  bottom: 28%;
   left: 45%;
   transform: translateX(-50%);
 }
 
 .blood img {
-  height: 150px;
+  height: 14vh;
+  min-height: 100px;
+  max-height: 220px;
   width: auto;
 }
 
 .okroshka {
-  bottom: 250px;
-  right: 45%;
+  bottom: 28%;
+  right: 46%;
   transform: translateX(50%);
 }
 
 .okroshka img {
-  width: 120px;
+  width: 8vw;
+  min-width: 80px;
+  max-width: 180px;
   height: auto;
 }
 
 .raf {
-  bottom: 510px;
+  bottom: 38vh;
   left: 0;
 }
 
 .raf img {
-  width: 60px;
+  width: 5vw;
+  min-width: 40px;
+  max-width: 90px;
 }
 
-/* --- ВЫБРАННЫЙ ПРЕДМЕТ --- */
 .kitchen-item.selected img {
   transform: scale(1.1);
   filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.3));
@@ -97,7 +103,6 @@
   border-color: rgba(255, 215, 0, 0.3);
 }
 
-/* --- ВЗЯТЫЙ ПРЕДМЕТ --- */
 .kitchen-item.taken {
   opacity: 0.5;
   cursor: default;
@@ -111,18 +116,17 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
-/* --- ПОДСКАЗКА НА СТОЛЕ (для красоты) --- */
 .table-hint {
   position: absolute;
-  bottom: 200px;
+  bottom: 16vh;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1;
   font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
+  font-size: clamp(0.9rem, 0.9vh, 1rem);
   color: rgba(255, 255, 255, 0.15);
   background: rgba(0, 0, 0, 0.2);
-  padding: 4px 16px;
+  padding: 0.3vh 1.2vw;
   border-radius: 20px;
   pointer-events: none;
 }
@@ -131,18 +135,23 @@
   left: 50%;
   top: 38%;
   transform: translate(-50%, -50%);
-  width: 200px;
-  height: 330px;
+  width: 16vw;
+  min-width: 140px;
+  max-width: 280px;
+  height: 25vh;
+  min-height: 250px;
+  max-height: 400px;
   cursor: pointer;
   z-index: 2;
 }
 
-/* Мороженое */
 .kitchen-item.icecream {
   left: 50%;
-  top: 30%;
+  top: 33%;
   transform: translateX(-50%);
-  height: 200px;
+  height: 16vh;
+  min-height: 120px;
+  max-height: 250px;
   width: auto;
   cursor: default;
   transition: opacity 1.5s ease-out, transform 1.5s ease-out;
@@ -154,7 +163,6 @@
   width: auto;
 }
 
-/* Анимация исчезновения */
 .kitchen-item.icecream.fading {
   opacity: 0;
   transform: scale(0.5) rotate(20deg);
@@ -164,12 +172,13 @@
 .cat {
   position: absolute;
   top: 50%;
-  right: 30%;
+  right: 33%;
   transition: transform 0.3s ease;
 }
 
 .cat img {
-  height: 300px;
+  height: 28vh;
+  min-height: 180px;
   width: auto;
   transform: scaleX(-1);
   transition: transform 0.3s ease;
@@ -191,20 +200,20 @@
 .close-fridge {
   position: absolute;
   left: 50%;
-  bottom: 200px;
+  bottom: 16vh;
   transform: translateX(-50%);
   width: fit-content;
-  padding: 10px 20px;
+  padding: 0.8vh 1.5vw;
   background-color: rgba(255, 100, 150);
   border: 1px solid rgba(255, 180, 210);
   border-radius: 8px;
   color: #f5e6f0;
   font-family: 'Courier New', monospace;
-  font-size: 1rem;
+  font-size: clamp(1rem, 1.1vh, 1.2rem);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .close-fridge:hover {
-    background-color: rgb(251, 69, 127);
+  background-color: rgb(251, 69, 127);
 }

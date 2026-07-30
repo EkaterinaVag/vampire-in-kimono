@@ -10,11 +10,12 @@
 
 .bg-text {
   position: absolute;
-  bottom: 30px;
-  left: 10px;
+  bottom: 3vh;
+  left: 1vw;
   z-index: 2;
-  width: 540px;
-  max-width: 700px;
+  width: 25vw;
+  min-width: 300px;
+  max-width: 560px;
 }
 
 .bg-text img {
@@ -30,10 +31,11 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 85%;
-  padding: 60px 50px 20px 20px;
+  max-width: 900px;
+  padding: 5vh 4vw 2vh 2vw;
   font-family: 'Courier New', monospace;
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-size: clamp(0.7rem, 1.1vh, 1rem);
+  line-height: 1.8;
   color: #242424;
   text-align: center;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
@@ -42,13 +44,15 @@
 
 .continue-btn {
   position: fixed;
-  top: 45%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 20;
-  padding: 20px 48px;
+  padding: 2vh 4vw;
+  min-width: 200px;
+  /* max-width: 400px; */
   font-family: 'Courier New', monospace;
-  font-size: 1.6rem;
+  font-size: clamp(1rem, 1.8vh, 1.8rem);
   font-weight: bold;
   letter-spacing: 2px;
   color: #f5e6f0;
@@ -57,9 +61,9 @@
   border: 2px solid rgba(255, 180, 210, 0.5);
   border-radius: 60px;
   cursor: pointer;
-  animation: fadeInBtn 0.6s ease forwards;
-  transition: all 0.3s ease;
+  transition: all 1s ease;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
 }
 
 .continue-btn:hover {
@@ -72,13 +76,14 @@
   transform: translate(-50%, -50%) scale(0.95);
 }
 
-@keyframes fadeInBtn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.92) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1) translateY(0);
-  }
+.continue-btn.hidden {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.7);
+  pointer-events: none;
+}
+
+.continue-btn.visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  pointer-events: auto;
 }

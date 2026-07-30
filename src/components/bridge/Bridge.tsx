@@ -323,8 +323,6 @@ function BridgeContent() {
 
   // ПРОВЕРКА ПРОХОЖДЕНИЯ МОСТА
   useEffect(() => {
-    let nextBtnTimer: number | null = null;
-
     if (currentScene === 2 && playerX >= 85 && !isPassed && !isFalling && !isGameOver && !isRepairing && !isResetting) {
       setDialogText(
         runningTimeRef.current > 0
@@ -340,11 +338,7 @@ function BridgeContent() {
       setShowArtifact(true)
       obtainArtifact('silent_step')
       setProgress('bridge_passed', true)
-      nextBtnTimer = setTimeout(() => setIsShowNextBtn(true), 5000)
-    }
-
-    return () => {
-      if (nextBtnTimer) clearTimeout(nextBtnTimer)
+      setTimeout(() => setIsShowNextBtn(true), 5000)
     }
   }, [currentScene, playerX, isPassed, isFalling, isGameOver, bridgeHealth, isRepairing, isResetting])
 

@@ -2,113 +2,183 @@
   position: relative;
   width: 100%;
   height: 100%;
+}
 
-  /* Кошка */
+.cat-sprite {
+  position: absolute;
+  bottom: 22vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.cat-sprite:hover {
+  transform: translateX(-50%) scale(1.08);
+}
+
+.cat-image {
+  width: 16vw;
+  min-width: 140px;
+  max-width: 260px;
+  height: auto;
+  image-rendering: pixelated;
+  display: block;
+  animation: catChewing 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes catChewing {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  25% {
+    transform: rotate(3deg) scale(1.04);
+  }
+
+  50% {
+    transform: rotate(0deg) scale(0.98);
+  }
+
+  75% {
+    transform: rotate(-3deg) scale(1.03);
+  }
+
+  100% {
+    transform: rotate(0deg) scale(1);
+  }
+}
+
+.litter-trails {
+  display: flex;
+  gap: 1.2vw;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.8vh;
+}
+
+.litter-trail {
+  display: block;
+  width: 1.8vw;
+  min-width: 14px;
+  max-width: 32px;
+  height: 0.5vh;
+  min-height: 4px;
+  max-height: 8px;
+  border-radius: 4px;
+  background: #6b8f5e;
+  box-shadow: 0 0 6px rgba(107, 143, 94, 0.4);
+  transform: rotate(var(--rotation, 0deg));
+  opacity: 0.9;
+}
+
+.litter-trail.trail-1 {
+  --rotation: -15deg;
+  width: 2vw;
+  min-width: 16px;
+  max-width: 34px;
+  height: 0.5vh;
+  min-height: 4px;
+  max-height: 8px;
+}
+
+.litter-trail.trail-2 {
+  --rotation: 5deg;
+  width: 1.4vw;
+  min-width: 12px;
+  max-width: 26px;
+  height: 0.5vh;
+  min-height: 4px;
+  max-height: 8px;
+}
+
+.litter-trail.trail-3 {
+  --rotation: 20deg;
+  width: 1.6vw;
+  min-width: 14px;
+  max-width: 28px;
+  height: 0.5vh;
+  min-height: 4px;
+  max-height: 8px;
+}
+
+.cat-sprite.offended {
+  filter: grayscale(0.5) brightness(0.8);
+}
+
+.cat-sprite.offended .litter-trails {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.cat-sprite.offended .cat-image {
+  animation: none;
+}
+
+.cat-sprite.saved .litter-trails {
+  opacity: 0.6;
+}
+
+.cat-sprite.saved .cat-image {
+  animation: none;
+}
+
+@media (min-width: 1920px) {
   .cat-sprite {
-    position: absolute;
-    bottom: 250px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 1;
-    transition: transform 0.2s ease;
-    cursor: pointer;
+    bottom: 25vh;
+  }
 
-    &:hover {
-      transform: translateX(-50%) scale(1.05);
-    }
+  .cat-sprite:hover {
+    transform: translateX(-50%) scale(1.1);
+  }
 
-    /* Следы от лап */
-    .litter-trails {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      width: 100%;
+  .cat-image {
+    width: 14vw;
+    min-width: 200px;
+    max-width: 340px;
+  }
 
-      .litter-trail {
-        display: block;
-        width: 18px;
-        height: 4px;
-        border-radius: 4px;
-        background: #6b8f5e;
-        box-shadow: 0 0 4px rgba(107, 143, 94, 0.3);
-        transform: rotate(var(--rotation, 0deg));
-        opacity: 0.9;
+  .litter-trails {
+    gap: 1.5vw;
+    margin-top: 1vh;
+  }
 
-        /* Варианты следов */
-        &.trail-1 {
-          --rotation: -15deg;
-          width: 20px;
-          height: 4px;
-        }
+  .litter-trail {
+    width: 2.2vw;
+    min-width: 20px;
+    max-width: 40px;
+    height: 0.6vh;
+    min-height: 5px;
+    max-height: 10px;
+    border-radius: 6px;
+    box-shadow: 0 0 8px rgba(107, 143, 94, 0.5);
+  }
 
-        &.trail-2 {
-          --rotation: 5deg;
-          width: 14px;
-          height: 4px;
-        }
+  .litter-trail.trail-1 {
+    width: 2.5vw;
+    min-width: 22px;
+    max-width: 44px;
+    height: 0.6vh;
+    min-height: 5px;
+    max-height: 10px;
+  }
 
-        &.trail-3 {
-          --rotation: 20deg;
-          width: 16px;
-          height: 4px;
-        }
-      }
-    }
+  .litter-trail.trail-2 {
+    width: 1.8vw;
+    min-width: 16px;
+    max-width: 32px;
+    height: 0.6vh;
+    min-height: 5px;
+    max-height: 10px;
+  }
 
-    /* Состояние "обижена" */
-    &.offended {
-      filter: grayscale(0.5) brightness(0.8);
-
-      .litter-trails {
-        opacity: 0;
-        transition: opacity 0.5s ease;
-      }
-
-      .cat-image {
-        animation: none;
-      }
-    }
-
-    /* Состояние "спасена" */
-    &.saved {
-      .litter-trails {
-        opacity: 0.6;
-      }
-
-      .cat-image {
-        animation: none;
-      }
-    }
-
-    /* Изображение кошки */
-    .cat-image {
-      width: 160px;
-      height: auto;
-      image-rendering: pixelated;
-      display: block;
-      animation: catChewing 0.6s ease-in-out infinite alternate;
-
-      @keyframes catChewing {
-        0% {
-          transform: rotate(0deg) scale(1);
-        }
-
-        25% {
-          transform: rotate(3deg) scale(1.04);
-        }
-
-        50% {
-          transform: rotate(0deg) scale(0.98);
-        }
-
-        75% {
-          transform: rotate(-3deg) scale(1.03);
-        }
-
-        100% {
-          transform: rotate(0deg) scale(1);
-        }
-      }
-    }
+  .litter-trail.trail-3 {
+    width: 2vw;
+    min-width: 18px;
+    max-width: 36px;
+    height: 0.6vh;
+    min-height: 5px;
+    max-height: 10px;
   }
 }

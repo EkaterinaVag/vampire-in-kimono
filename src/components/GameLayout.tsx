@@ -37,7 +37,7 @@ export function GameLayout({
 
       {/* Кнопка ПРОДОЛЖИТЬ */}
       {showNextBtn && onNext && (
-        <button className="continue-btn" onClick={onNext}>
+        <button className={`continue-btn ${showNextBtn ? 'visible' : 'hidden'}`} onClick={onNext}>
           {nextBtnText}
         </button>
       )}

@@ -227,15 +227,11 @@ function MoonFieldContent() {
 
     timerRef.current = setTimeout(() => {
       setTestMessage('Последний артефакт кроется там где отдыхает кошка - найди его!')
+
+      setTimeout(() => {
+        setShowRestartBtn(true)
+      }, 2000)
     }, 3000)
-
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-
-    timerRef.current = setTimeout(() => {
-      setShowRestartBtn(true)
-    }, 5000)
   }
 
   const handleRestart = () => {
