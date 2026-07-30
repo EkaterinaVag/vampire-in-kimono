@@ -200,7 +200,7 @@ function KitchenContent() {
               </div>
 
               <div
-                className={`cat ${selectedChoice ? 'active' : 'inactive'}`}
+                className={`cat ${selectedChoice && !returnFromFinal ? 'active' : 'inactive'}`}
                 onClick={selectedChoice ? handleCatClick : undefined}
               >
                 <img src={catTwo} alt="cat" />
