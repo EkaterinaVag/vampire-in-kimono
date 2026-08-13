@@ -6,6 +6,7 @@ import { LoadingScreen } from '../LoadingScreen'
 import usePlayerMovement from '@/hooks/usePlayerMovement'
 import getPlayerSprite from '@/utils/playerSprites'
 import RoundFailOverlay from '../ui/roundFailOverlay/RoundFailOverlay'
+import { useSound } from '@/hooks/useSound'
 import './Playground.css'
 
 import bg from '@/assets/backgrounds/playground/playground-1.png'
@@ -18,8 +19,11 @@ import pill from '@/assets/sprites/children/pill.png'
 import cat from '@/assets/sprites/cat/cat-5.png'
 import toy from '@/assets/items/artifacts/toy.png'
 
+import childSound from '@/assets/sounds/child.ogg'
+import pillSound from '@/assets/sounds/pill.ogg'
+
 function PlaygroundContent() {
-  const { setLocation, obtainArtifact, setProgress, chokopai, useChokopai, resetChokopai } = useGameStore()
+  const { setLocation, obtainArtifact, chokopai, spendChokopai, restoreChokopai } = useGameStore()
 
   const {
     playerX,
@@ -41,44 +45,44 @@ function PlaygroundContent() {
 
   const [tablet, setTablet] = useState<{ x: number; y: number; active: boolean } | null>(null)
   const [tabletCaught, setTabletCaught] = useState(false)
+  const tabletSpawnedRef = useRef(false)
 
-  const [children, setChildren] = useState<{ id: number; x: number; y: number; active: boolean }[]>([])
-  const childIdRef = useRef(0)
+  const [children, setChildren] = useState<{ x: number; y: number; active: boolean }[]>([])
   const childSpawnRef = useRef<number | null>(null)
   const fallIntervalRef = useRef<number | null>(null)
   const collisionCooldownRef = useRef<number | null>(null)
-  const tabletSpawnedRef = useRef(false)
+
+  const { play: playChildSound } = useSound(childSound)
+  const { play: playPillSound } = useSound(pillSound)
+
+  const catPhrases = [
+    'Этот мир слишком шумный. Я предпочитаю пакеты. Они шуршат. И в них можно спрятаться от детей. Дети - это страшно. Особенно когда они бегают и орут.',
+    'Падающие дети - это всегда смешно',
+  ]
+  const catPhraseIndexRef = useRef(0)
 
   const playerXRef = useRef(playerX)
-  const tabletCaughtRef = useRef(tabletCaught)
-  const isRoundActiveRef = useRef(isRoundActive)
-  const showRoundEndRef = useRef(showRoundEnd)
-
-  const useChokopaiRef = useRef(useChokopai)
-  const chokopaiRef = useRef(chokopai)
-
   useEffect(() => {
     playerXRef.current = playerX
   }, [playerX])
 
   useEffect(() => {
-    tabletCaughtRef.current = tabletCaught
-  }, [tabletCaught])
+    if (currentScene === 1 && isRoundActive && !tabletCaught && !showRoundEnd) {
+      const currentPhrase = catPhrases[catPhraseIndexRef.current % catPhrases.length]
+      setDialogText(currentPhrase)
+      catPhraseIndexRef.current += 1
+    } else {
+      setDialogText('')
+    }
+  }, [currentScene, isRoundActive, tabletCaught, showRoundEnd])
 
-  useEffect(() => {
-    isRoundActiveRef.current = isRoundActive
-  }, [isRoundActive])
+  const showResetRoundOverlay = (message: string) => {
+    setIsRoundActive(false)
+    setShowRoundEnd(true)
+    setDialogText(message)
+  }
 
-  useEffect(() => {
-    showRoundEndRef.current = showRoundEnd
-  }, [showRoundEnd])
-
-  useEffect(() => {
-    useChokopaiRef.current = useChokopai
-    chokopaiRef.current = chokopai
-  }, [useChokopai, chokopai])
-
-  const resetRound = () => {
+  const handleResetRound = () => {
     if (childSpawnRef.current) {
       clearInterval(childSpawnRef.current)
       childSpawnRef.current = null
@@ -94,32 +98,16 @@ function PlaygroundContent() {
 
     setIsRoundActive(true)
     setShowRoundEnd(false)
-    setGameTime(180)
+    setGameTime(60)
     setIsTimeStopped(false)
     setTabletCaught(false)
     setTablet(null)
     setChildren([])
     setDialogText('')
-    resetChokopai()
+    restoreChokopai()
     resetMovement()
     tabletSpawnedRef.current = false
   }
-
-  const catPhrases = [
-    '«Этот мир слишком шумный. Я предпочитаю пакеты. Они шуршат. И в них можно спрятаться от детей. Дети - это страшно. Особенно когда они бегают и орут.»',
-    '«Падающие дети - это всегда смешно»',
-  ]
-  const catPhraseIndexRef = useRef(0)
-
-  useEffect(() => {
-    if (currentScene === 1 && isRoundActive && !tabletCaught && !showRoundEnd) {
-      const currentPhrase = catPhrases[catPhraseIndexRef.current % catPhrases.length]
-      setDialogText(currentPhrase)
-      catPhraseIndexRef.current += 1
-    } else {
-      setDialogText('')
-    }
-  }, [currentScene, isRoundActive, tabletCaught, showRoundEnd])
 
   const handleChildCollision = () => {
     if (!isRoundActive || tabletCaught) return
@@ -129,66 +117,26 @@ function PlaygroundContent() {
       collisionCooldownRef.current = null
     }, 1000)
 
-    const currentChokopai = chokopaiRef.current?.current || 0
+    if (chokopai.current > 0) {
+      playChildSound({ volume: 0.3 })
+      spendChokopai()
+      setDialogText(`Ой! Ты потерял чокопай. Осталось: ${chokopai.current}`)
 
-    // Если есть хоть один чокопай - тратим
-    if (currentChokopai > 0) {
-      useChokopaiRef.current()
-      const remaining = currentChokopai - 1
-      setDialogText(`Ой! Ты потерял чокопай. Осталось: ${remaining}`)
-
-      // Если после траты чокопаев не осталось - перезапускаем раунд
-      if (remaining === 0) {
-        setTimeout(() => {
-          setIsRoundActive(false)
-          setShowRoundEnd(true)
-          setDialogText('Чокопаи закончились! Раунд перезапущен!')
-
-          // Останавливаем всё
-          setIsTimeStopped(true)
-          setChildren([])
-
-          if (childSpawnRef.current) {
-            clearInterval(childSpawnRef.current)
-            childSpawnRef.current = null
-          }
-          if (fallIntervalRef.current) {
-            clearInterval(fallIntervalRef.current)
-            fallIntervalRef.current = null
-          }
-        }, 500)
+      if (chokopai.current === 0) {
+        setTimeout(() => showResetRoundOverlay('Чокопаи закончились! Раунд перезапущен!'), 500)
       }
     } else {
-      // Чокопаев нет - сразу перезапуск
-      setIsRoundActive(false)
-      setShowRoundEnd(true)
-      setDialogText('Чокопаи закончились! Раунд перезапущен!')
-
-      setIsTimeStopped(true)
-      setChildren([])
-
-      if (childSpawnRef.current) {
-        clearInterval(childSpawnRef.current)
-        childSpawnRef.current = null
-      }
-      if (fallIntervalRef.current) {
-        clearInterval(fallIntervalRef.current)
-        fallIntervalRef.current = null
-      }
+      showResetRoundOverlay('Чокопаи закончились! Раунд перезапущен!')
     }
   }
 
-  // таймер
   useEffect(() => {
     if (isTimeStopped || !isRoundActive) return
 
     const timer = setInterval(() => {
       setGameTime((prev) => {
         if (prev <= 1) {
-          setIsRoundActive(false)
-          setShowRoundEnd(true)
-          setDialogText('Время вышло! Раунд перезапущен!')
-
+          showResetRoundOverlay('Время вышло! Раунд перезапущен!')
           clearInterval(timer)
           return 0
         }
@@ -199,22 +147,16 @@ function PlaygroundContent() {
     return () => clearInterval(timer)
   }, [isTimeStopped, isRoundActive])
 
-  const currentHour = useMemo(() => {
-    const elapsedSeconds = 180 - gameTime
-    return elapsedSeconds % 24
-  }, [gameTime])
-
-  // таблетка
   const catchTablet = () => {
     if (tabletCaught) return
 
+    playPillSound()
     setTabletCaught(true)
     setTablet(null)
-
     setGameTime(0)
     setIsTimeStopped(true)
-
     setChildren([])
+
     if (childSpawnRef.current) {
       clearInterval(childSpawnRef.current)
       childSpawnRef.current = null
@@ -226,22 +168,25 @@ function PlaygroundContent() {
       setShowArtifact(true)
       obtainArtifact('rattle')
       setDialogText('Мя. Ребёнок уронил игрушку. Я подобрал. Держи. Потряси, если страшно. Мне помогает. Но вообще я ничего не боюсь. Кроме пылесоса.')
-      setProgress('playground_tabletCaught', true)
 
       setTimeout(() => {
         setShowArtifact(false)
-        setDialogText('«Дальше - кухня. Там тебя ждёт важный выбор. Окрошка или кровь. Или… кое-что ещё. Я бы сказал что, но это испортит сюрприз. А я люблю сюрпризы. Особенно если они шуршат.')
+        setDialogText('Дальше кухня. Там тебя ждёт важный выбор. Окрошка или кровь. Или… кое-что ещё. Я бы сказал что, но это испортит сюрприз. А я люблю сюрпризы. Особенно если они шуршат.')
         setIsShowHextBtn(true)
-      }, 6000)
+      }, 8000)
     }, 800)
   }
+
+  const currentHour = useMemo(() => {
+    const elapsedSeconds = 180 - gameTime
+    return elapsedSeconds % 24
+  }, [gameTime])
 
   useEffect(() => {
     if (!isRoundActive || tabletCaught || showRoundEnd) return
     if (tablet && tablet.active) return
 
     if (currentHour === 17 && !tablet && !tabletSpawnedRef.current) {
-      tabletSpawnedRef.current = true
       setTablet({
         x: 20 + Math.random() * 60,
         y: -10,
@@ -250,23 +195,15 @@ function PlaygroundContent() {
       setDialogText('Таблетка! Нажми E, чтобы поймать!')
     }
 
-    if (currentHour !== 17) {
+    if (currentHour !== 17 || tabletCaught) {
       tabletSpawnedRef.current = false
     }
-  }, [currentHour, tabletCaught, tablet, isRoundActive, showRoundEnd])
 
-  useEffect(() => {
-    if (tabletCaught) {
-      tabletSpawnedRef.current = false
-    }
-  }, [tabletCaught])
-
-  useEffect(() => {
     if (tablet && !tablet.active) {
       tabletSpawnedRef.current = false
       setTimeout(() => setTablet(null), 500)
     }
-  }, [tablet])
+  }, [currentHour, tabletCaught, tablet, isRoundActive, showRoundEnd])
 
   useEffect(() => {
     if (!tablet || !tablet.active || tabletCaught || !isRoundActive || showRoundEnd) return
@@ -283,14 +220,6 @@ function PlaygroundContent() {
           return { ...prev, active: false }
         }
 
-        const playerPos = playerX / 100 * window.innerWidth
-        const tabletPos = prev.x / 100 * window.innerWidth
-
-        if (newY > 50 && Math.abs(playerPos - tabletPos) < 50) {
-          catchTablet()
-          return { ...prev, active: false }
-        }
-
         return { ...prev, y: newY }
       })
     }, 50)
@@ -299,18 +228,30 @@ function PlaygroundContent() {
   }, [tablet, tabletCaught, isRoundActive, showRoundEnd])
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.key === 'e' || e.key === 'E') && tablet && tablet.active && !tabletCaught && isRoundActive) {
+        const playerPos = playerX / 100 * window.innerWidth
+        const tabletPos = tablet.x / 100 * window.innerWidth
+        if (Math.abs(playerPos - tabletPos) < 60) {
+          catchTablet()
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [tablet, tabletCaught, isRoundActive, playerX])
+
+  useEffect(() => {
     if (!isRoundActive || tabletCaught || showRoundEnd) return
 
-    // Очищаем предыдущий интервал
     if (childSpawnRef.current) {
       clearInterval(childSpawnRef.current)
       childSpawnRef.current = null
     }
 
-    // Создаем новый интервал
     childSpawnRef.current = window.setInterval(() => {
       const newChild = {
-        id: childIdRef.current++,
         x: 5 + Math.random() * 90,
         y: -10,
         active: true,
@@ -336,9 +277,6 @@ function PlaygroundContent() {
 
     fallIntervalRef.current = window.setInterval(() => {
       const currentPlayerX = playerXRef.current
-      const currentTabletCaught = tabletCaughtRef.current
-      const currentIsRoundActive = isRoundActiveRef.current
-      const currentShowRoundEnd = showRoundEndRef.current
 
       setChildren((prev) => {
         const updated = prev.map((child) => {
@@ -347,7 +285,7 @@ function PlaygroundContent() {
           const newY = child.y + 1.5
 
           // Проверка столкновения с игроком
-          if (newY > 40 && newY < 55 && !currentTabletCaught && currentIsRoundActive && !currentShowRoundEnd) {
+          if (newY > 40 && newY < 55 && !tabletCaught && isRoundActive && !showRoundEnd) {
             const playerPos = currentPlayerX / 100 * window.innerWidth
             const childPos = child.x / 100 * window.innerWidth
 
@@ -375,22 +313,6 @@ function PlaygroundContent() {
     }
   }, [isRoundActive, showRoundEnd])
 
-  // движение
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.key === 'e' || e.key === 'E') && tablet && tablet.active && !tabletCaught && isRoundActive) {
-        const playerPos = playerX / 100 * window.innerWidth
-        const tabletPos = tablet.x / 100 * window.innerWidth
-        if (Math.abs(playerPos - tabletPos) < 60) {
-          catchTablet()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [tablet, tabletCaught, isRoundActive, playerX])
-
   const handleContinue = () => {
     setLocation('kitchen')
   }
@@ -407,100 +329,81 @@ function PlaygroundContent() {
       showNextBtn={isShowHextBtn}
       onNext={handleContinue}
     >
-      <div className="playground">
+      <img
+        className="background"
+        src={backgrounds[currentScene]}
+        alt="Playground background"
+      />
+
+      <div
+        className={`player-one ${isMoving ? 'moving' : ''}`}
+        style={{ left: `${playerX}%` }}
+      >
         <img
-          className="background"
-          src={backgrounds[currentScene]}
-          alt="Playground background"
+          src={getPlayerSprite(isMoving, isMovingLeft)}
+          alt="Вампир в кимоно"
+          style={{ transform: !isMovingLeft ? 'scaleX(-1)' : 'scaleX(1)' }}
         />
-
-        <div
-          className={`player-one ${isMoving ? 'moving' : ''}`}
-          style={{ left: `${playerX}%` }}
-        >
-          <img
-            src={getPlayerSprite(isMoving, isMovingLeft)}
-            alt="Вампир в кимоно"
-            className="player-sprite-one"
-            style={{
-              transform: !isMovingLeft ? 'scaleX(-1)' : 'scaleX(1)',
-            }}
-          />
-        </div>
-
-        <div className="clock-wrapper">
-          <div className={`clock-display ${currentHour === 17 ? 'seventeen' : ''}`}>
-            <span className="clock-hours">
-              {String(currentHour).padStart(2, '0')}:00
-            </span>
-          </div>
-
-          <div className="progress-label">
-            до конца тура {gameTime} сек
-          </div>
-        </div>
-
-        {showRoundEnd && (
-          <RoundFailOverlay
-            title={chokopai?.current === 0 ? 'Раунд проигран!' : 'Время вышло!'}
-            onAction={resetRound}
-          />
-        )}
-
-        {children.map((child) => (
-          <div
-            key={child.id}
-            className="child"
-            style={{
-              left: `${child.x}%`,
-              top: `${child.y}%`,
-            }}
-          >
-            <img
-              src={baby}
-              alt="Ребёнок"
-            />
-          </div>
-        ))}
-
-        {tablet && tablet.active && !tabletCaught && (
-          <div
-            className="tablet"
-            style={{
-              left: `${tablet.x}%`,
-              top: `${tablet.y}%`,
-            }}
-          >
-            <span className="tablet-icon">
-              <img
-                src={pill}
-                alt="Таблетка"
-              />
-            </span>
-            <span className="tablet-hint">[E]</span>
-          </div>
-        )}
-
-        {currentScene === 1 && (
-          <img
-            className='cat-lie'
-            src={cat}
-            alt="кошка"
-          />
-        )}
-
-        <div className="controls-hint">
-          ← → или A D - движение
-        </div>
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Погремушка забытого детства"
-            artifactIcon={toy}
-            onComplete={handleArtifactComplete}
-          />
-        )}
       </div>
+
+      <div className="clock-wrapper">
+        <div className={`clock-display ${currentHour === 17 ? 'seventeen' : ''}`}>
+          <span className="clock-hours">
+            {String(currentHour).padStart(2, '0')}:00
+          </span>
+        </div>
+
+        <div className="progress-label">
+          до конца тура {gameTime} сек
+        </div>
+      </div>
+
+      {children.map((child, id) => (
+        <div
+          key={id + 1}
+          className="child"
+          style={{ left: `${child.x}%`, top: `${child.y}%` }}
+        >
+          <img src={baby} alt="Ребёнок" />
+        </div>
+      ))}
+
+      {tablet && tablet.active && !tabletCaught && (
+        <div
+          className="tablet"
+          style={{ left: `${tablet.x}%`, top: `${tablet.y}%` }}
+        >
+          <img src={pill} alt="Таблетка" />
+          <span className="tablet-hint">[E]</span>
+        </div>
+      )}
+
+      {currentScene === 1 && (
+        <img
+          className='cat-lie'
+          src={cat}
+          alt="кошка"
+        />
+      )}
+
+      <div className="controls-hint">
+        ← → или A D - движение
+      </div>
+
+      {showRoundEnd && (
+        <RoundFailOverlay
+          title={chokopai?.current === 0 ? 'Раунд проигран!' : 'Время вышло!'}
+          onAction={handleResetRound}
+        />
+      )}
+
+      {showArtifact && (
+        <ArtifactNotification
+          artifactName="Погремушка забытого детства"
+          artifactIcon={toy}
+          onComplete={handleArtifactComplete}
+        />
+      )}
     </GameLayout>
   )
 }

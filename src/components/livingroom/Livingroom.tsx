@@ -5,6 +5,7 @@ import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotific
 import { LoadingScreen } from '../LoadingScreen'
 import { TimerDisplay } from '../ui/timerDisplay/TimerDisplay'
 import RoundFailOverlay from '../ui/roundFailOverlay/RoundFailOverlay'
+import { useSound } from '@/hooks/useSound'
 import './Livingroom.css'
 
 import bg from '@/assets/backgrounds/livingroom/livingroom.png'
@@ -14,9 +15,10 @@ import cat from '@/assets/sprites/cat/cat-8.png'
 import furr from '@/assets/items/artifacts/furr.png'
 import bag from '@/assets/sprites/bag.png'
 
+import meow from '@/assets/sounds/meows.ogg'
+
 function LivingroomContent() {
   const {
-    setProgress,
     setLocation,
     obtainArtifact,
   } = useGameStore()
@@ -39,23 +41,23 @@ function LivingroomContent() {
   const moveIntervalRef = useRef<number | null>(null)
   const dialogTimeoutRef = useRef<number | null>(null)
 
+  const { play: playMeow, stop: stopMeow } = useSound(meow)
+
   const runningPhrases = [
-    '«Я - тигр! Я - лев! Я - тот, кто шуршит!»',
-    '«Мяу! А где стена? А, вот она! БАМ!»',
-    '«Если я ничего не вижу - значит, меня не существует! Пакет - моя маскировка!»',
-    '«Хрум-хрум-хрум! Я ем пакет! Не наполнитель, но тоже вкусно!»',
+    'Я - тигр! Я - лев! Я - тот, кто шуршит!',
+    'Мяу! А где стена? А, вот она! БАМ!',
+    'Если я ничего не вижу - значит, меня не существует! Пакет - моя маскировка!',
+    'Хрум-хрум-хрум! Я ем пакет! Не наполнитель, но тоже вкусно!',
   ]
 
   const clickPhrases = [
-    '«Мя! Кто меня схватил? А, ты. Не мешай, я - ураган!»',
-    '«Отпусти! Я не доел пакет!»',
-    '«Ладно, ладно, я твой, только не дёргай так, уши болят!»',
+    'Мя! Кто меня схватил? А, ты. Не мешай, я - ураган!',
+    'Отпусти! Я не доел пакет!',
+    'Ладно, ладно, я твой, только не дёргай так, уши болят!',
   ]
 
-  const savedPhrase =
-    '«Фух. Ну и набегался. Пакет хороший. Шуршит. Ты, главное, не думай, что я глупый. Я просто… исследую мир. Исследую. Головой. В пакете.»'
+  const savedPhrase = 'Фух. Ну и набегался. Пакет хороший. Шуршит. Ты, главное, не думай, что я глупый. Я просто… исследую мир. Исследую. Головой. В пакете.'
 
-  // СБРОС РАУНДА
   const resetRound = () => {
     setIsRoundFailed(false)
     setIsTimerActive(true)
@@ -65,7 +67,25 @@ function LivingroomContent() {
     setBagY(50)
     setBagDirection(1)
     setDialogText('')
+
+    playMeow({ volume: 0.3, loop: true })
   }
+
+  useEffect(() => {
+    if (isTimerActive && !isBagCaught && !isRoundFailed) {
+      playMeow({ volume: 0.3, loop: true })
+    }
+
+    return () => {
+      stopMeow()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (isBagCaught || isRoundFailed || !isTimerActive) {
+      stopMeow()
+    }
+  }, [isBagCaught, isRoundFailed, isTimerActive])
 
   // ПОКАЗ СЛУЧАЙНОЙ ФРАЗЫ ВО ВРЕМЯ БЕГА
   useEffect(() => {
@@ -103,6 +123,7 @@ function LivingroomContent() {
           setIsTimerActive(false)
           setIsRoundFailed(true)
           setDialogText('Кот врезался в стену! Попробуй снова.')
+          stopMeow()
           return 0
         }
         return prev - 1
@@ -158,7 +179,7 @@ function LivingroomContent() {
       if (!isBagCaught && !isRoundFailed) {
         setDialogText('')
       }
-    }, 1500)
+    }, 3000)
 
     if (clickCountRef.current >= 3) {
       setIsBagCaught(true)
@@ -166,7 +187,7 @@ function LivingroomContent() {
       setDialogText(savedPhrase)
       setShowArtifact(true)
       obtainArtifact('fur_clump')
-      setProgress('livingroom_bagCatSaved', true)
+      stopMeow()
 
       setTimeout(() => {
         setIsShowNextBtn(true)
@@ -188,57 +209,53 @@ function LivingroomContent() {
       showNextBtn={isShowNextBtn}
       onNext={handleContinue}
     >
-      <div className="livingroom">
-        <img
-          className="background"
-          src={bg}
-          alt="Livingroom background"
+      <img
+        className="background"
+        src={bg}
+        alt="Livingroom background"
+      />
+
+      {isTimerActive && !isBagCaught && !isRoundFailed && (
+        <TimerDisplay timeLeft={timeLeft} icon={timer} />
+      )}
+
+      {!isBagCaught && !isRoundFailed && (
+        <div
+          className="bag-sprite"
+          style={{ left: `${bagX}%`, top: `${bagY}%` }}
+          onClick={handleBagClick}
+        >
+          <img
+            src={bag}
+            alt="Пакет"
+          />
+          <span className="click-hint">[КЛИКНИ]</span>
+        </div>
+      )}
+
+      {isBagCaught && (
+        <div className="cat-saved">
+          <img
+            src={cat}
+            alt="Спасённый кот"
+          />
+        </div>
+      )}
+
+      {isRoundFailed && (
+        <RoundFailOverlay
+          title="Кот врезался в стену!"
+          onAction={resetRound}
         />
+      )}
 
-        {isTimerActive && !isBagCaught && !isRoundFailed && (
-          <TimerDisplay timeLeft={timeLeft} icon={timer} />
-        )}
-
-        {!isBagCaught && !isRoundFailed && (
-          <div
-            className="bag-sprite"
-            style={{ left: `${bagX}%`, top: `${bagY}%` }}
-            onClick={handleBagClick}
-          >
-            <img
-              src={bag}
-              alt="Пакет"
-              className="bag-image"
-            />
-            <span className="click-hint">[КЛИКНИ]</span>
-          </div>
-        )}
-
-        {isBagCaught && (
-          <div className="cat-saved">
-            <img
-              src={cat}
-              alt="Спасённый кот"
-              className="cat-happy"
-            />
-          </div>
-        )}
-
-        {isRoundFailed && (
-          <RoundFailOverlay
-            title="Кот врезался в стену!"
-            onAction={resetRound}
-          />
-        )}
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Клок шерсти"
-            artifactIcon={furr}
-            onComplete={handleArtifactComplete}
-          />
-        )}
-      </div>
+      {showArtifact && (
+        <ArtifactNotification
+          artifactName="Клок шерсти"
+          artifactIcon={furr}
+          onComplete={handleArtifactComplete}
+        />
+      )}
     </GameLayout>
   )
 }

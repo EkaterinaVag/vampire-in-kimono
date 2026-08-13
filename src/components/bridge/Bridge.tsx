@@ -19,11 +19,10 @@ import paw from '@/assets/items/artifacts/paw.png'
 
 function BridgeContent() {
   const {
-    setProgress,
     setLocation,
     obtainArtifact,
-    useChokopai: chokopaiFunction,
-    resetChokopai,
+    spendChokopai,
+    restoreChokopai,
     chokopai,
   } = useGameStore()
 
@@ -126,7 +125,7 @@ function BridgeContent() {
       const actualSpend = Math.min(chokopaiToSpend, chokopai.current)
 
       for (let i = 0; i < actualSpend; i++) {
-        chokopaiFunction()
+        spendChokopai()
       }
 
       healthThresholdRef.current = currentHealth + (healthLost % 25)
@@ -177,7 +176,7 @@ function BridgeContent() {
     healthThresholdRef.current = 100
 
     resetMovement()
-    resetChokopai()
+    restoreChokopai()
 
     const newAttempts = attempts + 1
     setAttempts(newAttempts)
@@ -190,7 +189,7 @@ function BridgeContent() {
       'Я начинаю думать, что ты это специально делаешь. Просто чтобы на меня впечатление произвести. Ну, впечатлён. Теперь иди нормально.'
     ]
 
-    let message = 'Мя. Долго же ты. Мост... Ну, давай, иди. Я тут посижу, подожду. Можешь не спешить. Я вообще никуда не тороплюсь. Мне и тут хорошо.'
+    let message = ''
 
     if (newAttempts >= 1) {
       const cyclicIndex = (newAttempts - 1) % failMessages.length
@@ -201,8 +200,12 @@ function BridgeContent() {
 
     setTimeout(() => {
       setIsResetting(false)
-    }, 100)
+    }, 1000)
   }
+
+  useEffect(() => {
+    setTimeout(() => setDialogText('Мя. Долго же ты. Мост... Ну, давай, иди. Я тут посижу, подожду. Можешь не спешить. Я вообще никуда не тороплюсь. Мне и тут хорошо.'), 0)
+  }, [])
 
   // АНИМАЦИЯ ПАДЕНИЯ
   const startFalling = () => {
@@ -279,7 +282,7 @@ function BridgeContent() {
             setShakeAmount(5)
 
             if (chokopai.current > 0) {
-              chokopaiFunction()
+              spendChokopai()
             } else {
               clearAllTimeouts()
               startFalling()
@@ -337,7 +340,6 @@ function BridgeContent() {
 
       setShowArtifact(true)
       obtainArtifact('silent_step')
-      setProgress('bridge_passed', true)
       setTimeout(() => setIsShowNextBtn(true), 5000)
     }
   }, [currentScene, playerX, isPassed, isFalling, isGameOver, bridgeHealth, isRepairing, isResetting])
@@ -365,139 +367,132 @@ function BridgeContent() {
       showNextBtn={isShowNextBtn}
       onNext={handleContinue}
     >
-      <div className="bridge">
+      <img
+        className="background"
+        src={backgrounds[currentScene]}
+        alt="Bridge background"
+      />
+
+      {currentScene === 2 && !isResetting && (
         <img
-          className="background"
-          src={backgrounds[currentScene]}
-          alt="Bridge background"
+          className='cat-cat'
+          src={catSprite}
+          alt="кошка"
+        />
+      )}
+
+      <div
+        className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''} ${isGameOver ? 'dead' : ''}`}
+        style={{
+          left: `${playerX}%`,
+          bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
+          transform: isFalling
+            ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.2, 1 - playerY / 250)})`
+            : 'none',
+          opacity: isFalling ? Math.max(0, 1 - playerY / 180) : 1,
+          pointerEvents: isResetting ? 'none' : 'auto',
+        }}
+      >
+        <img
+          src={getPlayerSprite(isMoving, isMovingLeft)}
+          alt="Вампир"
+          style={{
+            transform: !isMovingLeft && !isFalling && !isGameOver ? 'scaleX(-1)' : 'scaleX(1)',
+          }}
         />
 
-        <div className="bridge-status">
-          <div className="health-bar-container">
-            <div className="health-bar-label">Прочность моста: {Math.round(bridgeHealth)}%</div>
-            <div className="health-bar">
+        {isFalling && (
+          <div className="fall-trails">
+            {fallTrails.map((trail, i) => (
               <div
-                className="health-bar-fill"
+                key={i}
+                className="fall-trail"
                 style={{
-                  width: `${bridgeHealth}%`,
-                  background: bridgeHealth > 60 ? '#4caf50' : bridgeHealth > 30 ? '#ff9800' : '#f44336',
-                  transition: 'width 0.3s ease, background 0.3s ease'
+                  left: `${trail.left}%`,
+                  animationDelay: `${trail.delay}s`,
+                  width: `${trail.width}px`,
+                  height: `${trail.height}px`,
+                  opacity: trail.opacity,
                 }}
               />
-            </div>
-          </div>
-        </div>
-
-        {showCracks && !isFalling && !isPassed && !isGameOver && !isResetting && (
-          <div className="crack-overlay">
-            <div className="crack-line" style={{ left: '40%', animationDelay: '0s' }} />
-            <div className="crack-line" style={{ left: '48%', animationDelay: '0.2s' }} />
-            <div className="crack-line" style={{ left: '56%', animationDelay: '0.4s' }} />
-            <div className="crack-line" style={{ left: '64%', animationDelay: '0.6s' }} />
-            <div className="crack-line" style={{ left: '72%', animationDelay: '0.8s' }} />
+            ))}
           </div>
         )}
+      </div>
 
-        {isFalling && (
-          <>
-            <div className="falling-flash" />
-            <div className="debris">
-              {debrisPieces.map((piece, i) => (
-                <div
-                  key={i}
-                  className="debris-piece"
-                  style={{
-                    left: `${piece.left}%`,
-                    top: `${piece.top}%`,
-                    width: `${piece.width}px`,
-                    height: `${piece.height}px`,
-                    animationDelay: `${piece.delay}s`,
-                    transform: `rotate(${piece.rotation}deg)`,
-                    animationDuration: `${piece.speed}s`,
-                  }}
-                />
-              ))}
-            </div>
-            <div className="dust-cloud" />
-          </>
-        )}
+      {isFalling && (
+        <>
+          <div className="falling-flash" />
+          <div className="debris">
+            {debrisPieces.map((piece, i) => (
+              <div
+                key={i}
+                className="debris-piece"
+                style={{
+                  left: `${piece.left}%`,
+                  top: `${piece.top}%`,
+                  width: `${piece.width}px`,
+                  height: `${piece.height}px`,
+                  animationDelay: `${piece.delay}s`,
+                  transform: `rotate(${piece.rotation}deg)`,
+                  animationDuration: `${piece.speed}s`,
+                }}
+              />
+            ))}
+          </div>
+          <div className="dust-cloud" />
 
-        <div
-          className={`player ${isMoving ? 'moving' : ''} ${isFalling ? 'falling' : ''} ${isGameOver ? 'dead' : ''}`}
-          style={{
-            left: `${playerX}%`,
-            bottom: `${isFalling ? 33 - playerY * 0.15 : 33}%`,
-            transform: isFalling
-              ? `rotate(${playerY * 1.5}deg) scale(${Math.max(0.2, 1 - playerY / 250)})`
-              : 'none',
-            opacity: isFalling ? Math.max(0, 1 - playerY / 180) : 1,
-            pointerEvents: isResetting ? 'none' : 'auto',
-          }}
-        >
-          <img
-            src={getPlayerSprite(isMoving, isMovingLeft)}
-            alt="Вампир"
-            className="player-sprite"
-            style={{
-              transform: !isMovingLeft && !isFalling && !isGameOver ? 'scaleX(-1)' : 'scaleX(1)',
-            }}
-          />
-
-          {isFalling && (
-            <div className="fall-trails">
-              {fallTrails.map((trail, i) => (
-                <div
-                  key={i}
-                  className="fall-trail"
-                  style={{
-                    left: `${trail.left}%`,
-                    animationDelay: `${trail.delay}s`,
-                    width: `${trail.width}px`,
-                    height: `${trail.height}px`,
-                    opacity: trail.opacity,
-                  }}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {isFalling && (
           <div
             className="screen-shake"
             style={{
               transform: `translate(${Math.sin(shakeAmount) * 8}px, ${Math.cos(shakeAmount * 1.3) * 8}px)`
             }}
           />
-        )}
+        </>
+      )}
 
-        {currentScene === 2 && !isGameOver && !isFalling && !isResetting && (
-          <img
-            className='cat-cat'
-            src={catSprite}
-            alt="кошка"
-          />
-        )}
-
-        <div className="controls-hint">
-          ← → или A D - движение | SHIFT - медленный шаг
+      {showCracks && !isFalling && !isPassed && !isGameOver && !isResetting && (
+        <div className="crack-overlay">
+          <div className="crack-line" style={{ left: '40%', animationDelay: '0s' }} />
+          <div className="crack-line" style={{ left: '48%', animationDelay: '0.2s' }} />
+          <div className="crack-line" style={{ left: '56%', animationDelay: '0.4s' }} />
+          <div className="crack-line" style={{ left: '64%', animationDelay: '0.6s' }} />
+          <div className="crack-line" style={{ left: '72%', animationDelay: '0.8s' }} />
         </div>
+      )}
 
-        {isGameOver && (
-          <RoundFailOverlay
-            title="Мост разрушен!"
-            onAction={resetFullTour}
+      <div className="health-bar-container">
+        <div className="health-bar-label">Прочность моста: {Math.round(bridgeHealth)}%</div>
+        <div className="health-bar">
+          <div
+            className="health-bar-fill"
+            style={{
+              width: `${bridgeHealth}%`,
+              background: bridgeHealth > 60 ? '#4caf50' : bridgeHealth > 30 ? '#ff9800' : '#f44336',
+              transition: 'width 0.3s ease, background 0.3s ease'
+            }}
           />
-        )}
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Тихий шаг"
-            artifactIcon={paw}
-            onComplete={handleArtifactComplete}
-          />
-        )}
+        </div>
       </div>
+
+      <div className="controls-hint">
+        ← → или A D - движение | SHIFT - медленный шаг
+      </div>
+
+      {isGameOver && (
+        <RoundFailOverlay
+          title="Мост разрушен!"
+          onAction={resetFullTour}
+        />
+      )}
+
+      {showArtifact && (
+        <ArtifactNotification
+          artifactName="Тихий шаг"
+          artifactIcon={paw}
+          onComplete={handleArtifactComplete}
+        />
+      )}
     </GameLayout>
   )
 }

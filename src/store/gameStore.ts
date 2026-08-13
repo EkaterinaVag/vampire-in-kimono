@@ -4,25 +4,18 @@ import { persist } from 'zustand/middleware'
 import type { LocationId, GameStore } from './types'
 
 const getInitialState = (): Omit<GameStore,
-  'setLocation' | 'completePrologue' | 'setProgress' |
-  'addItem' | 'removeItem' | 'hasItem' | 'useChokopai' |
-  'addChokopai' | 'applyFurClump' | 'consumeRaf' |
+  'setLocation' | 'setProgress' |
+  'addItem' | 'removeItem' | 'hasItem' | 'spendChokopai' |
+  'addChokopai' | 'expandChokopaiSlots' | 'consumeRaf' |
   'addSleepiness' | 'resetSleepiness' | 'obtainArtifact' |
-  'hasArtifact' | 'reset' | 'resetChokopai'
+  'hasArtifact' | 'reset' | 'restoreChokopai'
 > => ({
   currentLocation: 'prologue' as LocationId,
-  prologueCompleted: false,
   progress: {
-    hallway_catSaved: false,
-    playground_tabletCaught: false,
     kitchen_choice: null,
     kitchen_icecreamTaken: false,
     kitchen_rafTaken: false,
     kitchen_rafUsed: false,
-    bridge_passed: false,
-    livingroom_bagCatSaved: false,
-    moon_icecreamGiven: false,
-    moon_sequenceCompleted: false,
     return_from_final: false
   },
   items: [],
@@ -38,13 +31,6 @@ export const useGameStore = create<GameStore>()(
 
       setLocation: (location) => {
         set({ currentLocation: location })
-      },
-
-      completePrologue: () => {
-        set({
-          prologueCompleted: true,
-          currentLocation: 'hallway',
-        })
       },
 
       setProgress: (key, value) => {
@@ -67,7 +53,7 @@ export const useGameStore = create<GameStore>()(
         return get().items.includes(item)
       },
 
-      useChokopai: () => {
+      spendChokopai: () => {
         set((state) => {
           if (state.chokopai.current > 0) {
             state.chokopai.current--
@@ -83,7 +69,7 @@ export const useGameStore = create<GameStore>()(
           return state
         })
       },
-      applyFurClump: () => {
+      expandChokopaiSlots: () => {
         set((state) => {
           if (state.chokopai.max === 3) {
             state.chokopai.max = 4
@@ -92,7 +78,7 @@ export const useGameStore = create<GameStore>()(
           return state
         })
       },
-      resetChokopai: () => {
+      restoreChokopai: () => {
         set((state) => {
           if (state.chokopai.max === 3) {
             state.chokopai.current = 3
@@ -106,9 +92,10 @@ export const useGameStore = create<GameStore>()(
       },
 
 
-      addSleepiness: (value) => {
+      addSleepiness: (value: number) => {
         set((state) => {
-          state.effects.sleepiness = Math.min(100, state.effects.sleepiness + value)
+          const newValue = Math.min(100, Math.max(0, state.effects.sleepiness + value))
+          state.effects.sleepiness = newValue
           return state
         })
       },
@@ -120,6 +107,7 @@ export const useGameStore = create<GameStore>()(
       },
       consumeRaf: () => {
         set((state) => {
+          state.items = state.items.filter(item => item !== 'raf')
           state.progress.kitchen_rafUsed = true
           state.effects.sleepiness = 0
           return state
@@ -142,7 +130,6 @@ export const useGameStore = create<GameStore>()(
       name: 'game-storage',
       partialize: (state) => ({
         currentLocation: state.currentLocation,
-        prologueCompleted: state.prologueCompleted,
         progress: state.progress,
         items: state.items,
         chokopai: state.chokopai,

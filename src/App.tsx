@@ -11,8 +11,6 @@ import DesktopOnly from './components/ui/desktopOnly/DesktopOnly'
 function App() {
   const currentLocation = useGameStore((state) => state.currentLocation)
 
-  console.log(currentLocation)
-
   return (
     <DesktopOnly>
       {currentLocation === 'prologue' && <Prologue />}

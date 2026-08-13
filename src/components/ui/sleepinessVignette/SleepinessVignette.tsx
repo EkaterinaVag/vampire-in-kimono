@@ -4,9 +4,9 @@ import './SleepinessVignette.css'
 
 interface SleepinessVignetteProps {
   children?: React.ReactNode
-  idleThreshold?: number // секунд бездействия до начисления сонливости (по умолчанию 5)
-  idleIncrement?: number // сколько сонливости начислять за каждый цикл (по умолчанию 2)
-  checkInterval?: number // интервал проверки в мс (по умолчанию 100)
+  idleThreshold?: number // секунд бездействия до начисления сонливости
+  idleIncrement?: number // сколько сонливости начислять за каждый цикл
+  checkInterval?: number // интервал проверки в мс
 }
 
 export function SleepinessVignette({
@@ -15,7 +15,8 @@ export function SleepinessVignette({
   idleIncrement = 10,
   checkInterval = 100
 }: SleepinessVignetteProps) {
-  const { effects, addSleepiness, resetSleepiness } = useGameStore()
+  const { addSleepiness, resetSleepiness } = useGameStore()
+  const sleepiness = useGameStore((state) => state.effects.sleepiness)
   const isRafUsed = useGameStore(state => state.progress.kitchen_rafUsed)
 
   const [, forceUpdate] = useState({})
@@ -80,15 +81,14 @@ export function SleepinessVignette({
 
   // Обновление прозрачности виньетки
   const getSleepinessLevelClass = useMemo(() => {
-    const value = effects.sleepiness
-    if (value >= 80) return 'level-critical'
-    if (value >= 50) return 'level-high'
-    if (value >= 25) return 'level-medium'
+    if (sleepiness >= 80) return 'level-critical'
+    if (sleepiness >= 50) return 'level-high'
+    if (sleepiness >= 25) return 'level-medium'
     return 'level-low'
-  }, [effects.sleepiness])
+  }, [sleepiness])
 
   // Показываем виньетку только если сонливость > 10%
-  if (effects.sleepiness < 10 || isRafUsed) {
+  if (sleepiness < 10 || isRafUsed) {
     return <>{children}</>
   }
 

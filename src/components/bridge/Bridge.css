@@ -1,11 +1,3 @@
-.bridge {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-}
-
-/* Игрок */
 .player {
   position: absolute;
   bottom: 34%;
@@ -14,16 +6,15 @@
   transition: left 0.05s ease, bottom 0.3s ease, transform 0.3s ease, opacity 0.3s ease;
 }
 
-.player-sprite {
+.player img {
   width: auto;
   height: 24vh;
   min-height: 120px;
-  /* max-height: 260px; */
   image-rendering: pixelated;
   filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
 }
 
-.player.moving .player-sprite:not(.falling) {
+.player.moving:not(.falling) img {
   animation: walk 0.3s steps(2) infinite;
 }
 
@@ -39,7 +30,83 @@
   }
 }
 
-/* Управление */
+.player.falling {
+  transition: none !important;
+  z-index: 5;
+}
+
+.player.falling img {
+  animation: fallSpin 1s ease-in forwards;
+  filter: drop-shadow(0 10px 30px rgba(255, 100, 0, 0.5));
+}
+
+@keyframes fallSpin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+
+  100% {
+    transform: rotate(720deg) scale(0.3);
+  }
+}
+
+.cat-cat {
+  position: absolute;
+  right: 2vw;
+  bottom: 30vh;
+  height: 18vh;
+  min-height: 120px;
+  max-height: 260px;
+  width: auto;
+  z-index: 1;
+}
+
+.health-bar-container {
+  position: absolute;
+  top: 3vh;
+  right: 3vw;
+  z-index: 20;
+  padding: 2vh 2vw;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 200px;
+  max-width: 25vw;
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1vh;
+}
+
+.health-bar-label {
+  color: #aaa;
+  font-size: clamp(0.8rem, 1.2vh, 1.1rem);
+  white-space: nowrap;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.health-bar {
+  height: 1.2vh;
+  min-height: 8px;
+  max-height: 18px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  overflow: hidden;
+  width: 100%;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.health-bar-fill {
+  height: 100%;
+  transition: width 0.3s ease, background 0.3s ease;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+}
+
 .controls-hint {
   position: absolute;
   bottom: 3vh;
@@ -47,7 +114,6 @@
   transform: translateX(-50%);
 }
 
-/* Трещины поверх фона */
 .crack-overlay {
   position: absolute;
   top: 0;
@@ -98,7 +164,6 @@
   }
 }
 
-/* Эффекты падения */
 .falling-flash {
   position: absolute;
   top: 0;
@@ -123,7 +188,6 @@
   }
 }
 
-/* Облако пыли */
 .dust-cloud {
   position: absolute;
   bottom: 20%;
@@ -152,7 +216,6 @@
   }
 }
 
-/* Обломки */
 .debris {
   position: absolute;
   top: 0;
@@ -184,7 +247,6 @@
   }
 }
 
-/* Скрин шейк */
 .screen-shake {
   position: absolute;
   top: 0;
@@ -216,27 +278,6 @@
   }
 }
 
-.player.falling {
-  transition: none !important;
-  z-index: 5;
-}
-
-.player.falling .player-sprite {
-  animation: fallSpin 1s ease-in forwards;
-  filter: drop-shadow(0 10px 30px rgba(255, 100, 0, 0.5));
-}
-
-@keyframes fallSpin {
-  0% {
-    transform: rotate(0deg) scale(1);
-  }
-
-  100% {
-    transform: rotate(720deg) scale(0.3);
-  }
-}
-
-/* Следы падения */
 .fall-trails {
   position: absolute;
   top: 0;
@@ -266,63 +307,4 @@
     opacity: 0;
     transform: translateY(80px) scaleX(0.2);
   }
-}
-
-.cat-cat {
-  position: absolute;
-  right: 2vw;
-  bottom: 30vh;
-  height: 18vh;
-  min-height: 120px;
-  max-height: 260px;
-  width: auto;
-  z-index: 1;
-}
-
-.bridge-status {
-  position: absolute;
-  top: 3vh;
-  right: 3vw;
-  z-index: 20;
-  padding: 2vh 2vw;
-  background: rgba(0, 0, 0, 0.75);
-  border-radius: 12px;
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  min-width: 200px;
-  max-width: 25vw;
-}
-
-.health-bar-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1vh;
-}
-
-.health-bar-label {
-  color: #aaa;
-  font-size: clamp(0.8rem, 1.2vh, 1.1rem);
-  white-space: nowrap;
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.health-bar {
-  height: 1.2vh;
-  min-height: 8px;
-  max-height: 18px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 6px;
-  overflow: hidden;
-  width: 100%;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.health-bar-fill {
-  height: 100%;
-  transition: width 0.3s ease, background 0.3s ease;
-  border-radius: 6px;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
 }

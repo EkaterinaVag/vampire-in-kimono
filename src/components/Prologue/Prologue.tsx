@@ -7,9 +7,7 @@ import bg from '@/assets/backgrounds/prologue/prologue.png'
 
 function PrologueContent() {
   const {
-    prologueCompleted,
-    completePrologue,
-    addSleepiness,
+    setLocation,
   } = useGameStore()
 
   const [visibleParagraphs, setVisibleParagraphs] = useState<number[]>([])
@@ -57,11 +55,8 @@ function PrologueContent() {
   }, [])
 
   const handleStart = () => {
-    addSleepiness(10)
-    completePrologue()
+    setLocation('hallway')
   }
-
-  if (prologueCompleted) return null
 
   return (
     <div className="prologue">

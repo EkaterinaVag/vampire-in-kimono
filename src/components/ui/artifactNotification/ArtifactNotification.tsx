@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
+// import { useSound } from '@/hooks/useSound'
 import './ArtifactNotification.css'
+
+// import win from '@/assets/sounds/win.ogg'
 
 interface ArtifactNotificationProps {
   artifactName: string
@@ -16,17 +19,31 @@ export function ArtifactNotification({
 }: ArtifactNotificationProps) {
   const [isVisible, setIsVisible] = useState(false)
 
-  useEffect(() => {
-    setTimeout(() => setIsVisible(true), 50)
+  // const { play: playWin } = useSound(win)
 
-    const timer = setTimeout(() => {
+  const showTimeoutRef = useRef<number | null>(null)
+  const hideTimeoutRef = useRef<number | null>(null)
+  const completeTimeoutRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    showTimeoutRef.current = setTimeout(() => {
+      // playWin({ volume: 0.6, loop: false })
+      setIsVisible(true)
+    }, 50)
+
+    hideTimeoutRef.current = setTimeout(() => {
       setIsVisible(false)
-      setTimeout(() => {
+
+      completeTimeoutRef.current = setTimeout(() => {
         if (onComplete) onComplete()
       }, 500)
     }, duration)
 
-    return () => clearTimeout(timer)
+    return () => {
+      if (showTimeoutRef.current) clearTimeout(showTimeoutRef.current)
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
+      if (completeTimeoutRef.current) clearTimeout(completeTimeoutRef.current)
+    }
   }, [duration, onComplete])
 
   return (

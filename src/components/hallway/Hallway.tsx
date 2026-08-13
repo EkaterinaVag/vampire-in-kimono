@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
 import { useGameStore } from '@store/gameStore'
-
 import { GameLayout } from '@components/GameLayout'
 import { ArtifactNotification } from '../ui/artifactNotification/ArtifactNotification'
 import { TimerDisplay } from '../ui/timerDisplay/TimerDisplay'
@@ -14,7 +13,7 @@ import purr from '@/assets/items/artifacts/purr.png'
 import timer from '@/assets/ui/timer-2.png'
 
 function HallwayContent() {
-  const { setProgress, setLocation, obtainArtifact, addChokopai, applyFurClump } =
+  const { setLocation, obtainArtifact, addChokopai, expandChokopaiSlots } =
     useGameStore()
 
   const [timeLeft, setTimeLeft] = useState(5)
@@ -54,14 +53,13 @@ function HallwayContent() {
     clearInterval(timerRef.current!)
     setIsTimerActive(false)
     setIsCatSaved(true)
-    setProgress('hallway_catSaved', true)
     obtainArtifact('wisdom_purr')
     addChokopai()
-    applyFurClump()
+    expandChokopaiSlots()
 
     setShowArtifact(true)
     setDialogText(
-      '«Ты спас меня от меня самого. Держи - это мудрость. Она хрустит. Не ешь её. Положи в карман кимоно. Так же держи еще один чокопай. Пригодится»'
+      'Ты спас меня от меня самого. Держи - это мудрость. Она хрустит. Не ешь её. Положи в карман кимоно. Так же держи еще один чокопай. Пригодится'
     )
   }
 
@@ -71,7 +69,7 @@ function HallwayContent() {
 
   const handleClickNextLevel = () => {
     setDialogText(
-      '«Дальше - детская площадка. Там… дети. Не бойся. Они не кусаются. В отличие от тебя. Хотя… нет, они тоже кусаются. Беги. Или стой. Я просто буду рядом.»'
+      'Дальше детская площадка. Там… дети. Не бойся. Они не кусаются. В отличие от тебя. Хотя… нет, они тоже кусаются. Беги. Или стой. Я просто буду рядом.'
     )
 
     setTimeout(() => setIsShowHextBtn(true), 300)
@@ -87,42 +85,38 @@ function HallwayContent() {
       showNextBtn={isShowHextBtn}
       onNext={handleContinue}
     >
-      <div className="hallway">
+      <img
+        className="background"
+        src={bg}
+        alt="Hallway background"
+      />
+
+      <div
+        className={`cat-sprite ${isCatSaved ? 'saved' : ''} ${!isCatSaved && !isTimerActive ? 'offended' : ''}`}
+        onClick={isTimerActive ? handleCatClick : handleClickNextLevel}
+      >
         <img
-          className="background"
-          src={bg}
-          alt="Hallway background"
+          src={`${isCatSaved ? catThree : cat}`}
+          alt="Cat eating litter"
         />
-
-        <div
-          className={`cat-sprite ${isCatSaved ? 'saved' : ''} ${!isCatSaved && !isTimerActive ? 'offended' : ''
-            }`}
-          onClick={isTimerActive ? handleCatClick : handleClickNextLevel}
-        >
-          <img
-            className='cat-image'
-            src={`${isCatSaved ? catThree : cat}`}
-            alt="Cat eating litter"
-          />
-          <div className="litter-trails">
-            <span className="litter-trail trail-1"></span>
-            <span className="litter-trail trail-2"></span>
-            <span className="litter-trail trail-3"></span>
-          </div>
+        <div className="litter-trails">
+          <span className="litter-trail trail-1"></span>
+          <span className="litter-trail trail-2"></span>
+          <span className="litter-trail trail-3"></span>
         </div>
-
-        {isTimerActive && !isCatSaved && (
-          <TimerDisplay timeLeft={timeLeft} icon={timer} />
-        )}
-
-        {showArtifact && (
-          <ArtifactNotification
-            artifactName="Мудрое мурчание"
-            artifactIcon={purr}
-            onComplete={handleArtifactComplete}
-          />
-        )}
       </div>
+
+      {isTimerActive && !isCatSaved && (
+        <TimerDisplay timeLeft={timeLeft} icon={timer} />
+      )}
+
+      {showArtifact && (
+        <ArtifactNotification
+          artifactName="Мудрое мурчание"
+          artifactIcon={purr}
+          onComplete={handleArtifactComplete}
+        />
+      )}
     </GameLayout>
   )
 }

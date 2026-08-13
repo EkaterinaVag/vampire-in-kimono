@@ -6,7 +6,6 @@ export type LocationId =
   | 'bridge'
   | 'livingroom'
   | 'moon_field'
-  | 'final'
 
 export type ArtifactId =
   | 'wisdom_purr'
@@ -19,15 +18,6 @@ export type ItemId =
   | 'icecream'
   | 'raf'
 
-export interface Artifact {
-  id: ArtifactId
-  name: string
-  description: string
-  icon: string
-  obtained: boolean
-  patienceBonus: number
-}
-
 export interface ChokopaiState {
   max: 3 | 4
   current: number
@@ -37,24 +27,11 @@ export interface GameStore {
   currentLocation: LocationId
   setLocation: (location: LocationId) => void
 
-  prologueCompleted: boolean
-  completePrologue: () => void
-
   progress: {
-    hallway_catSaved: boolean
-    playground_tabletCaught: boolean
-
     kitchen_choice: 'okroshka' | 'blood' | null
     kitchen_icecreamTaken: boolean
     kitchen_rafTaken: boolean
     kitchen_rafUsed: boolean,
-
-    bridge_passed: boolean
-
-    livingroom_bagCatSaved: boolean
-    moon_icecreamGiven: boolean
-    moon_sequenceCompleted: boolean
-
     return_from_final: boolean
   }
 
@@ -63,16 +40,16 @@ export interface GameStore {
     value: GameStore['progress'][K]
   ) => void
 
-  items: string[]
-  addItem: (item: string) => void
-  removeItem: (item: string) => void
-  hasItem: (item: string) => boolean
+  items: ItemId[]
+  addItem: (item: ItemId) => void
+  removeItem: (item: ItemId) => void
+  hasItem: (item: ItemId) => boolean
 
-  chokopai: { max: 3 | 4; current: number }
-  useChokopai: () => void
+  chokopai: ChokopaiState
+  spendChokopai: () => void
   addChokopai: () => void
-  applyFurClump: () => void
-  resetChokopai: () => void
+  expandChokopaiSlots: () => void
+  restoreChokopai: () => void
 
   consumeRaf: () => void
 
@@ -80,9 +57,9 @@ export interface GameStore {
   addSleepiness: (value: number) => void
   resetSleepiness: () => void
 
-  artifacts: string[]
-  obtainArtifact: (id: string) => void
-  hasArtifact: (id: string) => boolean
+  artifacts: ArtifactId[]
+  obtainArtifact: (id: ArtifactId) => void
+  hasArtifact: (id: ArtifactId) => boolean
 
   reset: () => void
 }

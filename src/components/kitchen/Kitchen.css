@@ -1,9 +1,3 @@
-.kitchen {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
 .kitchen-item {
   position: absolute;
   z-index: 2;
@@ -25,6 +19,16 @@
   filter: drop-shadow(0 4px 30px rgba(255, 200, 150, 0.2));
 }
 
+.kitchen-item.selected img {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.3));
+}
+
+.kitchen-item.selected .item-label {
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.3);
+}
+
 .item-label {
   font-family: 'Courier New', monospace;
   font-size: clamp(0.9rem, 0.9vh, 1rem);
@@ -36,24 +40,6 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   pointer-events: none;
   white-space: nowrap;
-}
-
-.item-check {
-  font-size: clamp(0.8rem, 1.4vh, 1.4rem);
-  margin-top: 0.2vh;
-  animation: checkPop 0.4s ease forwards;
-}
-
-@keyframes checkPop {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
 }
 
 .blood {
@@ -85,6 +71,7 @@
 .raf {
   bottom: 45%;
   left: 0;
+  cursor: pointer;
 }
 
 .raf img {
@@ -93,59 +80,19 @@
   max-width: 90px;
 }
 
-.kitchen-item.selected img {
-  transform: scale(1.1);
-  filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.3));
-}
-
-.kitchen-item.selected .item-label {
-  color: #ffd700;
-  border-color: rgba(255, 215, 0, 0.3);
-}
-
-.kitchen-item.taken {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.kitchen-item.taken img {
-  filter: grayscale(0.5);
-}
-
-.kitchen-item.taken .item-label {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-.table-hint {
-  position: absolute;
-  bottom: 16vh;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
-  font-family: 'Courier New', monospace;
-  font-size: clamp(0.9rem, 0.9vh, 1rem);
-  color: rgba(255, 255, 255, 0.15);
-  background: rgba(0, 0, 0, 0.2);
-  padding: 0.3vh 1.2vw;
-  border-radius: 20px;
-  pointer-events: none;
-}
-
-.kitchen-item.fridge {
+.fridge {
   left: 50%;
   top: 35%;
   transform: translate(-50%, -50%);
   width: 18vw;
   min-width: 140px;
-  /* max-width: 280px; */
   height: 25vh;
   min-height: 250px;
   max-height: 400px;
   cursor: pointer;
-  z-index: 2;
 }
 
-.kitchen-item.icecream {
+.icecream {
   left: 50%;
   top: 33%;
   transform: translateX(-50%);
@@ -154,16 +101,16 @@
   max-height: 250px;
   width: auto;
   cursor: default;
-  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
   opacity: 1;
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out;
 }
 
-.kitchen-item.icecream img {
+.icecream img {
   height: 100%;
   width: auto;
 }
 
-.kitchen-item.icecream.fading {
+.icecream.fading {
   opacity: 0;
   transform: scale(0.5) rotate(20deg);
   pointer-events: none;

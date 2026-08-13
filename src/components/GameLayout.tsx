@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Inventory } from '@/components/ui/inventory/Inventory'
 import { Lives } from '@/components/ui/lives/Lives'
 import './GameLayout.css'
+
 import bg from '@/assets/backgrounds/text-bg.png'
 
 interface GameLayoutProps {
@@ -23,11 +24,9 @@ export function GameLayout({
     <div className="game-layout">
       <div className="game-world">{children}</div>
 
-      {/* Постоянные элементы UI */}
       <Lives />
       <Inventory />
 
-      {/* Диалоговое окно */}
       {dialogText && (
         <div className="bg-text">
           <img src={bg} alt="text background" />
@@ -35,8 +34,7 @@ export function GameLayout({
         </div>
       )}
 
-      {/* Кнопка ПРОДОЛЖИТЬ */}
-      {showNextBtn && onNext && (
+      {onNext && (
         <button className={`continue-btn ${showNextBtn ? 'visible' : 'hidden'}`} onClick={onNext}>
           {nextBtnText}
         </button>
